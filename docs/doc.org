@@ -1,0 +1,30 @@
+#+title: Spheres-sounds
+#+startup: indent showall
+* dev
+** starting up
+- C-c M-j
+- (require '[figwheel-sidecar-repl-api :as fw])
+- (fw/start-figwheel!)
+- (fw/cljs-repl)
+then for the CSS that's in clj,-  M-x cider-connect-sibling-clj
+** deployment
+*** github-pages
+- add a remote 'github' - git remote add github https://github.com/manandearth/spheres-rf-ha.git
+- created a branch 'gh-pages' - git branch gh-pages
+- checkout to it -  git checkout gh-pages
+- need index.html at root with correct paths to css and js
+- I had to comment out resources/public/resources/js from the .gitignore
+- from the project.clj I had to delete ["garden" "once"] from the :preptasks
+- lein clean
+- lein cljsbuild once min
+- git add . and git commit -m ""
+- git push github gh-pages
+- *ISSUE* - when I committed changed to the index.html in github website, I had to -> git pull github gh-pages
+** cljs-bach
+** transit-cljs
+*** TODO converting to edn or json and back
+** visual design
+*** TODO representation of the elements
+*** TODO the page look
+** sound and the data - relations
+
