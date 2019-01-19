@@ -26,7 +26,8 @@
                  :stroke-width "0.3rem"
              ;; :color "#818"
                  }]
-
+  [:.guide {:width 1200 :padding-left "100px"}
+   ]
   [:.sphere {}
    [:&:hover {:stroke-width "3" :stroke "#2f2"}]]
   
@@ -37,16 +38,24 @@
   [:circle.mars {:fill "#833"}]
   [:circle.jupiter {:fill "#943"}]
   [:circle.saturn {:fill "#a81"}]
-  [:circle.uranus {:fill "#17d"}]
-  [:circle.neptune {:fill "#19d"}]
+  [:circle.uranus {:fill "#19d"}]
+  [:circle.neptune {:fill "#17d"}]
   [:circle.pluto {:fill "#533"}]  
-
+  [:circle.satelite {:fill "#777"}]
   [:text.system {:font-family "Share Tech Mono, monospace"
                  :font-size "1.5rem"
                  :fill "#757"
                  :text-shadow "1px 1px #999"}
    [:&:hover {:fill "#f2f"}]
-   ])
+   ]
+
+  [:text.spheres {:font-family "Share Tech Mono, monospace"
+                 :font-size "1.2rem"
+                  :fill "#44a"
+                  :text-shadow "1px 1px #bbb"
+                  :cursor "pointer"}
+   [:&:hover {:fill "#f2f"}]]
+   )
 
 
 

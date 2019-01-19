@@ -24,6 +24,11 @@ rect.system {
   stroke-width: 0.3rem;
 }
 
+.guide {
+  width: 1200;
+  padding-left: 100px;
+}
+
 .sphere {
 
 }
@@ -62,15 +67,19 @@ circle.saturn {
 }
 
 circle.uranus {
-  fill: #17d;
+  fill: #19d;
 }
 
 circle.neptune {
-  fill: #19d;
+  fill: #17d;
 }
 
 circle.pluto {
   fill: #533;
+}
+
+circle.satelite {
+  fill: #777;
 }
 
 text.system {
@@ -81,5 +90,17 @@ text.system {
 }
 
 text.system:hover {
+  fill: #f2f;
+}
+
+text.spheres {
+  font-family: Share Tech Mono, monospace;
+  font-size: 1.2rem;
+  fill: #44a;
+  text-shadow: 1px 1px #bbb;
+  cursor: pointer;
+}
+
+text.spheres:hover {
   fill: #f2f;
 }

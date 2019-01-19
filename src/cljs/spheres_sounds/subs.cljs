@@ -26,3 +26,16 @@
  ::selected-system-attr
  (fn [db]
    (get-in db [:spheres (:selected-system db)])))
+
+(reg-sub
+ ::selected-spheres
+ (fn [db]
+   (let
+       [satelites (set (:satelites @(subscribe [::selected-system-attr])))
+        spheres @(subscribe [::spheres])
+        parent @(subscribe [::selected-system])]
+      (sort-by :apoapsis
+               (concat
+                (list  (assoc (first (filter #(= (:name %) parent) spheres)) :periapsis 0 :apoapsis 0)) 
+                (filter #(contains? satelites (:name %)) spheres))) 
+     )))

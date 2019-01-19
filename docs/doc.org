@@ -24,7 +24,11 @@ then for the CSS that's in clj,-  M-x cider-connect-sibling-clj
 ** transit-cljs
 *** TODO converting to edn or json and back
 ** visual design
-*** TODO representation of the elements
-*** TODO the page look
+*** DONE representation of the elements
+glowing spheres
+*** DONE the page look
+dark bg, retro glow.
+** data structure
+generally there's an hirarchy of systems -> a system -> sphere -> its attributes.
 ** sound and the data - relations
 
