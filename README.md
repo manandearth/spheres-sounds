@@ -1,6 +1,29 @@
 # spheres-sounds
 
-A [re-frame](https://github.com/Day8/re-frame) application designed to ... well, that part is up to you.
+A [re-frame](https://github.com/Day8/re-frame) application.
+
+Exploring the characteristics of our solar system's bodies with sound.
+
+## Production:
+
+You will find a working example: [here.](https://github.com/manandearth/spheres-sounds)
+
+### Background:
+
+Somehow derived from a rather limited world view, one that dominated Europe in its dark middle ages, 
+here is yet another exploration to sound and the planets. A modern  *Harmony of the shpheres*...
+
+### Work in progress...
+This work is in the making; features are being created and added to make this instrument useful.
+Feel free to add suggestions and issues [here](https://github.com/manandearth/spheres-sounds/issues)
+
+### Use:
+
+- Some of the different attributes that can be explore here are demontrated in my [spheres-rf-ha app](https://manandearth.github.io/spheres-rf-ha/). Have a play with the visualisation there to get an idea of the relations between the differrent bodies. then:
+ 
+- Select a system from the top bar, ( the bodies are those bodies in the solar system that have satelites).
+- Toggle *on/off* the bodies included in the next menu.
+- TBC
 
 ## Development Mode
 

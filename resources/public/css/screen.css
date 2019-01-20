@@ -59,7 +59,7 @@ circle.mars {
 }
 
 circle.jupiter {
-  fill: #943;
+  fill: #975;
 }
 
 circle.saturn {
@@ -71,7 +71,7 @@ circle.uranus {
 }
 
 circle.neptune {
-  fill: #17d;
+  fill: #15d;
 }
 
 circle.pluto {
@@ -95,7 +95,7 @@ text.system:hover {
 
 text.spheres {
   font-family: Share Tech Mono, monospace;
-  font-size: 1.2rem;
+  font-size: 1rem;
   fill: #44a;
   text-shadow: 1px 1px #bbb;
   cursor: pointer;

@@ -36,10 +36,10 @@
   [:circle.venus {:fill "#fd8"}]
   [:circle.earth {:fill "#19d"}]
   [:circle.mars {:fill "#833"}]
-  [:circle.jupiter {:fill "#943"}]
+  [:circle.jupiter {:fill "#975"}]
   [:circle.saturn {:fill "#a81"}]
   [:circle.uranus {:fill "#19d"}]
-  [:circle.neptune {:fill "#17d"}]
+  [:circle.neptune {:fill "#15d"}]
   [:circle.pluto {:fill "#533"}]  
   [:circle.satelite {:fill "#777"}]
   [:text.system {:font-family "Share Tech Mono, monospace"
@@ -50,7 +50,7 @@
    ]
 
   [:text.spheres {:font-family "Share Tech Mono, monospace"
-                 :font-size "1.2rem"
+                 :font-size "1rem"
                   :fill "#44a"
                   :text-shadow "1px 1px #bbb"
                   :cursor "pointer"}
