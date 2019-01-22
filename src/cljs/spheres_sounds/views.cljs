@@ -40,14 +40,28 @@
       ;;mask for earth
       [:mask {:id "m-earth" :x "0" :y "0" :width "200%" :height "100%"}
        [:circle {:cx (+ x-position 240) :cy 50 :r 12 :fill "white"}]]
-      ;;mask for saturn
+      ;;masks for saturn
+
+      [:mask {:id "punch-saturn"}
+       [:circle {:cx (+ x-position 650) :cy 50 :r 28 :fill "black" 
+                 ;:mask "url(#saturn-helper)"
+                 }]]
+      
+      [:mask {:id "saturn-helper"}
+       [:rect {:x (+ x-position 620) :y 50 :width 60 :height 40 :fill "white"}]
+       ]
+
       [:mask {:id "m-saturn"}
        ;;TODO need to reverse the mask on Saturn
-       [:circle {:cx (+ x-position 650) :cy 50 :r 28 :fill "white"}]]
+       [:rect {:x (+ x-position 580) :y 0 :width 200 :height 200 :fill "white"}]
+       [:circle {:cx (+ x-position 650) :cy 50 :r 28 :fill "black"}]
+       [:rect {:x (+ x-position 580) :y 50 :width 200 :height 30 :fill "white"}]
+       ]
 
-      [:linearGradient {:id "saturn-gradient" :x (+ x-position 865) :y 48 :width 200 :height 200 :gradientTransform "rotate(90, 0, 0)" }
+      
+      [:linearGradient {:id "saturn-gradient" :x (+ x-position 25) :y 480 :width 400 :height 400 :gradientTransform "rotate(90, 0, 0)" }
        [:stop {:offset "0%"   :stop-color "rgba(255, 255, 255, 0)"}]
-       [:stop {:offset "100%" :stop-color "rgba(255, 255, 150, 255)"}]]
+       [:stop {:offset "100%" :stop-color "rgba(255, 255, 255, 255)"}]]
 
       ]
      [:rect.system {:x x-position
@@ -87,14 +101,18 @@
        [:line {:x1 (+ x-position 450) :y1 75 :x2 (+ x-position 550) :y2 75 :style  {:stroke "#bbb" :stroke-width "8px"}}]
        [:line {:x1 (+ x-position 450) :y1 85 :x2 (+ x-position 550) :y2 85 :style  {:stroke "#f66" :stroke-width "7px"}}]
        [:ellipse {:cx (+ x-position 520) :cy 65 :rx 10 :ry 6 :style {:fill "#b53" :stroke "#bbb" :stroke-width "2px"}}]]]
+
      [:g
       [:circle.sphere.saturn {:cx (+ x-position 650) :cy 50 :r 28 :filter "url(#f2)"}]
-      [:ellipse {:cx (+ x-position 650) :cy 50 :rx 50 :ry 15
-                 ;; :filter "url(#f2)"
-                 :stroke "url(#saturn-gradient)" :stroke-width 15 :fill "none"
-                 :transform "rotate(0, 90, 45)" :opacity "0.3"
-                 :mask "url(#m-saturn)" :filter "url(#f2)"
-                 }]]
+      [:svg {:height 1000
+             ;; :filter "url(#f2)"
+                   } [:ellipse {:cx (+ x-position 650) :cy 50 :rx 50 :ry 20
+                                      :stroke
+                   ;; "url(#saturn-gradient)"
+                   "#dc9"
+                   :stroke-width 10 :fill "none" :opacity "1" :mask "url(#m-saturn)"
+                   :filter "url(#f3)" 
+                   }]]]
      [:g
       [:circle.sphere.uranus {:cx (+ x-position 760) :cy 50 :r 20 :filter "url(#f2)"}]
       [:ellipse {:cx (+ x-position 760) :cy 50 :rx 30 :ry 10 :fill "none" :stroke-width "1px" :stroke "white" :opacity "0.3"

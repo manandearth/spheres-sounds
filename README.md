@@ -6,7 +6,7 @@ Exploring the characteristics of our solar system's bodies with sound.
 
 ## Production:
 
-You will find a working example: [here.](https://github.com/manandearth/spheres-sounds)
+You will find a working example: [here.](https://manandearth.github.io/spheres-sounds/)
 
 ### Background:
 
