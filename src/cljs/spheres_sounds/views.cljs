@@ -42,20 +42,17 @@
        [:circle {:cx (+ x-position 240) :cy 50 :r 12 :fill "white"}]]
       ;;masks for saturn
 
-      [:mask {:id "punch-saturn"}
-       [:circle {:cx (+ x-position 650) :cy 50 :r 28 :fill "black" 
-                 ;:mask "url(#saturn-helper)"
-                 }]]
-      
-      [:mask {:id "saturn-helper"}
-       [:rect {:x (+ x-position 620) :y 50 :width 60 :height 40 :fill "white"}]
-       ]
-
       [:mask {:id "m-saturn"}
        ;;TODO need to reverse the mask on Saturn
        [:rect {:x (+ x-position 580) :y 0 :width 200 :height 200 :fill "white"}]
        [:circle {:cx (+ x-position 650) :cy 50 :r 28 :fill "black"}]
        [:rect {:x (+ x-position 580) :y 50 :width 200 :height 30 :fill "white"}]
+       ]
+      [:mask {:id "m-uranus"}
+       ;;TODO need to reverse the mask on Saturn
+       [:rect {:x (+ x-position 700) :y 0 :width 200 :height 200 :fill "white"}]
+       [:circle {:cx (+ x-position 760) :cy 50 :r 20 :fill "black"}]
+       [:rect {:x (+ x-position 700) :y 50 :width 200 :height 30 :fill "white"}]
        ]
 
       
@@ -89,36 +86,59 @@
       ]
      [:g 
       [:circle.sphere.jupiter {:cx (+ x-position 500) :cy 50 :r 42 :filter "url(#f2)"}]
-      [:g {:mask "url(#m-jupiter)"} [:line {:x1 (+ x-position 450) :y1 20 :x2 (+ x-position 550) :y2 20 :style  {:stroke "#f33" :stroke-width "7px"}}]
-       [:line {:x1 (+ x-position 450) :y1 20 :x2 (+ x-position 550) :y2 20 :filter "url(#f2)" :style  {:stroke "#963" :stroke-width "7px"}}]
-       [:line {:x1 (+ x-position 450) :y1 30 :x2 (+ x-position 550) :y2 30 :style  {:stroke "#bbb" :stroke-width "8px"}}]
-       [:line {:x1 (+ x-position 450) :y1 40 :x2 (+ x-position 550) :y2 40 :style  {:stroke "#f99" :stroke-width "4px"}}]
-       [:line {:x1 (+ x-position 450) :y1 45 :x2 (+ x-position 550) :y2 45 :style  {:stroke "#f55" :stroke-width "3px"}}]
-       [:line {:x1 (+ x-position 450) :y1 50 :x2 (+ x-position 550) :y2 50 :style  {:stroke "#bbb" :stroke-width "8px"}}]
-       [:line {:x1 (+ x-position 450) :y1 55 :x2 (+ x-position 550) :y2 55 :style  {:stroke "#f55" :stroke-width "7px"}}]
-       [:line {:x1 (+ x-position 450) :y1 60 :x2 (+ x-position 550) :y2 60 :style  {:stroke "#f88" :stroke-width "7px"}}]
-       [:line {:x1 (+ x-position 450) :y1 70 :x2 (+ x-position 550) :y2 70 :style  {:stroke "#bbb" :stroke-width "8px"}}]
-       [:line {:x1 (+ x-position 450) :y1 75 :x2 (+ x-position 550) :y2 75 :style  {:stroke "#bbb" :stroke-width "8px"}}]
-       [:line {:x1 (+ x-position 450) :y1 85 :x2 (+ x-position 550) :y2 85 :style  {:stroke "#f66" :stroke-width "7px"}}]
+      [:g {:mask "url(#m-jupiter)"}
+       [:circle {:cx (+ x-position 500) :cy -100 :r 120:stroke "#bbb" :stroke-width "7px" :fill "none"}]
+       [:circle {:cx (+ x-position 500) :cy -100 :r 135 :stroke "#f66" :stroke-width "7px" :fill "none"}]
+       [:circle {:cx (+ x-position 500) :cy -100 :r 145 :stroke "#f99" :stroke-width "1px" :fill "none"}]
+       [:circle {:cx (+ x-position 500) :cy -100 :r 155 :stroke "#f88" :stroke-width "7px" :fill "none"}]
+       [:circle {:cx (+ x-position 500) :cy -100 :r 158 :stroke "#bbb" :stroke-width "7px" :fill "none"}]
+       [:circle {:cx (+ x-position 500) :cy -100 :r 172 :stroke "#f55" :stroke-width "7px" :fill "none"}]
+       [:circle {:cx (+ x-position 500) :cy -100 :r 188 :stroke "#f88" :stroke-width "7px" :fill "none"}]
+       [:circle {:cx (+ x-position 500) :cy -100 :r 200 :stroke "#bbb" :stroke-width "7px" :fill "none"}]
        [:ellipse {:cx (+ x-position 520) :cy 65 :rx 10 :ry 6 :style {:fill "#b53" :stroke "#bbb" :stroke-width "2px"}}]]]
 
-     [:g
+     [:g {:transform "translate (80 -300) rotate(25 20 0)"} 
       [:circle.sphere.saturn {:cx (+ x-position 650) :cy 50 :r 28 :filter "url(#f2)"}]
-      [:svg {:height 1000
+      [:svg {:height 1000 
              ;; :filter "url(#f2)"
-                   } [:ellipse {:cx (+ x-position 650) :cy 50 :rx 50 :ry 20
-                                      :stroke
-                   ;; "url(#saturn-gradient)"
-                   "#dc9"
-                   :stroke-width 10 :fill "none" :opacity "1" :mask "url(#m-saturn)"
+             }
+       [:ellipse {:cx (+ x-position 650) :cy 50 :rx 50 :ry 20
+                  :stroke  "#db4"`
+                  ;; "url(#saturn-gradient)"
+                  :stroke-width 10 :fill "none" :opacity "1" :mask "url(#m-saturn)"
+                   :filter "url(#f3)" 
+                  }]
+       [:ellipse {:cx (+ x-position 650) :cy 50 :rx 40 :ry 15
+                  :stroke  "#dd9"
+                  ;; "url(#saturn-gradient)"
+                  :stroke-width 10 :fill "none" :opacity "1" :mask "url(#m-saturn)"
+                   ;; :filter "url(#f3)" 
+                  }]
+       [:ellipse {:cx (+ x-position 650) :cy 50 :rx 48 :ry 19
+                  :stroke  "#333"
+                  ;; "url(#saturn-gradient)"
+                  :stroke-width 1 :fill "none" :opacity "1" :mask "url(#m-saturn)"
+                   ;; :filter "url(#f3)" 
+                  }]
+       [:ellipse {:cx (+ x-position 650) :cy 50 :rx 36 :ry 10
+                  :stroke  "#333"
+                  ;; "url(#saturn-gradient)"
+                  :stroke-width 1 :fill "none" :opacity "1" :mask "url(#m-saturn)"
+                   :filter "url(#f3)" 
+                  }]
+       [:ellipse {:cx (+ x-position 650) :cy 50 :rx 54 :ry 24
+                  :stroke  "#b73"
+                  ;; "url(#saturn-gradient)"
+                  :stroke-width 3 :fill "none" :opacity "1" :mask "url(#m-saturn)"
                    :filter "url(#f3)" 
                    }]]]
      [:g
       [:circle.sphere.uranus {:cx (+ x-position 760) :cy 50 :r 20 :filter "url(#f2)"}]
       [:ellipse {:cx (+ x-position 760) :cy 50 :rx 30 :ry 10 :fill "none" :stroke-width "1px" :stroke "white" :opacity "0.3"
-                 :transform "rotate(100,860,50)"}]
+                 :transform "rotate(100,860,50)" :mask "url(#m-uranus)"}]
       [:ellipse {:cx (+ x-position 760) :cy 50 :rx 30 :ry 10 :fill "none" :stroke-width "1px" :stroke "white" :opacity "0.5"
-                 :transform "rotate(120,860,50)"}]]
+                 :transform "rotate(120,860,50)" :mask "url(#m-uranus)"}]]
+
      [:g
       [:circle.sphere.neptune {:cx (+ x-position 860) :cy 50 :r 18 :filter "url(#f2)"}]
       [:ellipse {:cx (+ x-position 865) :cy 48 :rx 6 :ry 3 :filter "url(#f3)" :style {:fill "#33f"}}]]

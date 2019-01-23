@@ -37,7 +37,7 @@
   [:circle.earth {:fill "#19d"}]
   [:circle.mars {:fill "#833"}]
   [:circle.jupiter {:fill "#975"}]
-  [:circle.saturn {:fill "#a81"}]
+  [:circle.saturn {:fill "#ec5"}]
   [:circle.uranus {:fill "#19d"}]
   [:circle.neptune {:fill "#15d"}]
   [:circle.pluto {:fill "#533"}]  
