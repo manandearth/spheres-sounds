@@ -21,11 +21,24 @@
         :color "#168"
         :text-shadow "1px 1px #777"}]
 
+  [:h3 {:font-size "1.5rem"
+        :font-family "Share Tech Mono, monospace"
+        :color "#825"
+        :text-shadow "0.3px 0.3px #770"}]
+
+
   [:rect.system {:fill "#222"
                  :stroke "#838"
                  :stroke-width "0.3rem"
              ;; :color "#818"
                  }]
+
+  [:rect.selected {:fill "#444"
+                 :stroke "#f2f"
+                 :stroke-width "0.3rem"
+             ;; :color "#818"
+                 }]
+  
   [:.guide {:width 1200 :padding-left "100px"}
    ]
   [:.sphere {}
@@ -49,13 +62,24 @@
    [:&:hover {:fill "#f2f"}]
    ]
 
+  [:text.selected {:font-family "Share Tech Mono, monospace"
+                 :font-size "1.5rem"
+                 :fill "#f2f"
+                 :text-shadow "1px 1px #999"}]
+
   [:text.spheres {:font-family "Share Tech Mono, monospace"
                  :font-size "1rem"
                   :fill "#44a"
                   :text-shadow "1px 1px #bbb"
                   :cursor "pointer"}
    [:&:hover {:fill "#f2f"}]]
-   )
+
+  [:text.spheres.visible {:font-family "Share Tech Mono, monospace"
+                 :font-size "1rem"
+                  :fill "#f2f"
+                  :text-shadow "1px 1px #bbb"
+                  :cursor "pointer"}
+   ])
 
 
 

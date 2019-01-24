@@ -155,13 +155,12 @@
       (for [system systems]
         (if (= selected-system (clojure.string/capitalize system))
           [:g  {:style {:cursor "pointer"}}
-           
-           [:rect.system {:x (* 127 (.indexOf systems system))
+           [:rect.selected {:x (* 127 (.indexOf systems system))
                           :y 0
                           :width 110
                           :height 30
                           }]
-           [:text.system {:x (* 127 (.indexOf systems system))
+           [:text.selected {:x (* 127 (.indexOf systems system))
                           :y 25
                           :on-click #(dispatch [:select-system (clojure.string/capitalize system)]) 
                           } (clojure.string/capitalize system)]
@@ -229,7 +228,8 @@
            apo-min (apply min (rest apo-list))
            apo-average  (/ (+ apo-max apo-min) 2)]
   (for [sphere (rest spheres)]
-    [:circle.satelite {:cx (+ 20 (/ (.log js/Math (:apoapsis sphere)) (/ apo-max 1000)))
+    [:circle.satelite {:key (str "circle " sphere)
+                       :cx (+ 20 (/ (.log js/Math (:apoapsis sphere)) (/ apo-max 1000)))
                        :cy 50
                        :r 3
                        :filter "url(#f2"}]))
@@ -237,21 +237,35 @@
 
 (.pow js/Math (apply max (map #(.log js/Math (:apoapsis %)) (rest @(subscribe [::subs/selected-spheres])))) 2)
 
+
+;;TODO - don't know why the spheres toggle on vis select other than just on and off..
+
 (defn stage []
   [:svg {:style {:width 1200 :height 1050}}
    [:rect.system {:x 100 :y 20 :width 1000 :height 1000}]
    [:svg  {:x 40 :width 1080 :height 300}
     (let [selected-system @(subscribe [::subs/selected-spheres])]
       (for [sphere selected-system]
-        [:g [:rect.system {:width 70 :height 20 :x (* 81 (inc (.indexOf selected-system sphere))) :y 100}]
-         [:text.spheres {:x (* 81 (inc (.indexOf selected-system sphere))) :y 115}
-          (:name sphere)]]))]
+        (if (:vis sphere)
+          [:g 
+           {:key (str "g-" sphere)
+            :on-click #(dispatch [:invisible (:name sphere)])}
+           [:rect.selected {:width 70 :height 20 :x (* 81 (inc (.indexOf selected-system sphere))) :y 100
+                               }]
+           [:text.spheres.visible {:x (* 81 (inc (.indexOf selected-system sphere))) :y 115}
+            (:name sphere)]]
+          [:g {:key (str "g-" sphere)
+               :on-click #(dispatch [:visible (:name sphere)])}
+           [:rect.system {:width 70 :height 20 :x (* 81 (inc (.indexOf selected-system sphere))) :y 100}]
+           [:text.spheres {:x (* 81 (inc (.indexOf selected-system sphere))) :y 115}
+            (:name sphere)]]
+          )))]
    [selected-system-box]]
   )
 
 ;; (subscribe [::subs/name])
 ;;(:satelites @(subscribe [::subs/selected-system-attr]))
-;; (subscribe [::subs/selected-system])
+;; (for [sphere @(subscribe [::subs/selected-spheres])] (:name sphere))
 
 
 (defn main-panel []
@@ -263,9 +277,11 @@
                     :position "absolute"}}
      [:div.guide
       [:h1  @name "/interplanetary instrument"]
+[:h3 "Some of the bodies in our solar system are gigatic and they travel in greater speed than anything on this planet, yet the are silent. The following is an interactive exploration of the relation between some of those bodies through sound."]
       [:h2 "Select a system:"]]
-     [systems-box]
      [systems-menu]
+     
+     [systems-box]
      [:h2.guide "Toggle spheres on and off:"]
      [stage]
      ]))

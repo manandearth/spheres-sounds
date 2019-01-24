@@ -14,6 +14,16 @@
  (fn [db [_ sys]]
    (assoc db/default-db :selected-system sys)))
 
+(reg-event-db
+ :visible
+ (fn [db [_ sphere]]
+   (assoc-in db/default-db [:spheres sphere :vis] true)))
+
+(reg-event-db
+ :invisible
+ (fn [db [_ sphere]]
+   (assoc-in db/default-db [:spheres sphere :vis] false)))
+
 ;; (reg-event-db
 ;;  :visible
 ;;  (fn [db [_ k]]

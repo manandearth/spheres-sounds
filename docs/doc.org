@@ -21,6 +21,51 @@ then for the CSS that's in clj,-  M-x cider-connect-sibling-clj
 - git push github gh-pages
 - *ISSUE* - when I committed changed to the index.html in github website, I had to -> git pull github gh-pages
 ** cljs-bach
+cljs-bach is required in the audio ns:
+
+#+BEGIN_SRC clojure
+(:require [cljs-bach.synthesis :refer [connect-> percussive adsr adshr sine square sawtooth add gain high-pass low-pass white-noise
+      triangle constant envelope run-with destination current-time]])
+
+;;defining the browser audio context:
+(defonce context (cljs-bach.synthesis/audio-context))
+
+#+END_SRC 
+**** TODO look carefully at klangmeister
+I am not sure how to arrange the namespaces, Klangmeister might give
+me an idea
+*** TODO create a multimethod ..
+first thing that occured to me is to use cljs-bach builtin `add` to
+put together a whole system in one sound I'll start with
+frequency. basically:
+#+BEGIN_SRC clojure
+(defn pings
+  [freq1 freq2]
+  (connect->
+   (add
+    (sine freq1)
+    (sine freq2)) 
+   (gain 0.1)))
+
+(-> (pings 440 420)
+    (connect-> destination)
+    (run-with context (current-time context)1))
+
+#+END_SRC
+
+That is for two frequencies so first I will need to
+create the multimethod.  Then I will see if some orbit
+values create anything interesting in any of the
+systems.
+** functionality
+*** TODO toggle the selected system in the menu itself
+make a dispatch on click to add the clicked name to :vis
+in the db for example.
+*** TODO toggle visibility of spheres from system
+look into how to toggle within a system, if I do it the
+*spheres-rf-ha* way -  it toggles visibility globally and
+then a planet that is toggled off in the solar system for example
+is toggled off in its own system (might be desired or not...).
 ** transit-cljs
 *** TODO converting to edn or json and back
 ** visual design
@@ -29,6 +74,6 @@ glowing spheres
 *** DONE the page look
 dark bg, retro glow.
 ** data structure
-generally there's an hirarchy of systems -> a system -> sphere -> its attributes.
+generally there's an hirarchy of systems -> a system ->
+sphere -> its attributes.
 ** sound and the data - relations
-
