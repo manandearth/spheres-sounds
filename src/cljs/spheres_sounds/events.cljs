@@ -1,6 +1,6 @@
 (ns spheres-sounds.events
   (:require
-   [re-frame.core :refer [reg-event-db]]
+   [re-frame.core :refer [reg-event-db reg-event-fx]]
    [spheres-sounds.db :as db]
    ))
 
@@ -23,6 +23,11 @@
  :invisible
  (fn [db [_ sphere]]
    (assoc-in db [:spheres sphere :vis] false)))
+
+(reg-event-fx
+ :apo-sound
+ (fn [cofx [_ ]])
+ )
 
 ;; (reg-event-db
 ;;  :visible

@@ -2,7 +2,12 @@
   (:require
    [re-frame.core :refer [subscribe dispatch]]
    [spheres-sounds.subs :as subs]
+   [spheres-sounds.audio :as audio]
+   
    ))
+
+(defonce context (cljs-bach.synthesis/audio-context))
+
 
 (defn systems-box []
   (let [x-position 100]
@@ -182,7 +187,7 @@
 (defn selected-system-box []
   (let [x-position 100
         parent (subscribe [::subs/selected-system-attr])
-        spheres (subscribe [::subs/sorted-attempt])
+        spheres (subscribe [::subs/sorted-spheres])
         ]
     [:svg.system {:x 0
                   :y 200
@@ -237,15 +242,28 @@
 
 ;; (.pow js/Math (apply max (map #(.log js/Math (:apoapsis %)) (rest @(subscribe [::subs/sorted-selected])))) 2)
 
+(defn try-me
+  []
+  [:svg
+   (let [toggled-on (subscribe [::subs/toggled-apo])
+         toggled-reduced (map #(/ % 1000000) @(subscribe [::subs/toggled-apo]))]
+     
+     [:g {:key "try-me"
+          :cursor "pointer"
+          :on-click #(dispatch [:audio toggled-reduced])}
+      [:rect.system {:x 500 :y 350 :width 100 :height 30}]
+      [:text.system {:x 507 :y 370} "try-me"]])])
 
-;;TODO - don't know why the spheres toggle on vis select other than just on and off..
+;; (map #(/ % 100000) @(subscribe [::subs/toggled-apo]))
+;; (0 698.169 1089.39 1520.98232 2492 4454.1 8166.2 15145 30080 72319000)
+;(map audio/dings (map #(/ % 100000) @(subscribe [::subs/toggled-apo])))
 
 (defn stage []
   [:svg {:style {:width 1200 :height 1050}}
    [:rect.system {:x 100 :y 20 :width 1000 :height 1000}]
    [:svg  {:x 40 :width 1080 :height 300}
 
-    (let [selected-system (subscribe [::subs/sorted-attempt])]
+    (let [selected-system (subscribe [::subs/sorted-spheres])]
       (for [sphere @selected-system]
         (if (:vis sphere)
           [:g 
@@ -261,7 +279,10 @@
            [:text.spheres {:x (* 81 (inc (.indexOf @selected-system sphere))) :y 115}
             (:name sphere)]]
           )))]
-   [selected-system-box]]
+   [selected-system-box]
+   [try-me]
+
+   ]
   )
 
 ;; (subscribe [::subs/name])
