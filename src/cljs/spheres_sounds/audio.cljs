@@ -41,10 +41,10 @@
     (sine freq4)
     (sine freq5)) ; What happens if the two frequencies are further apart? Why?
    (gain 0.1)
-   (adshr 1 6 0 1 8)))
+   (adshr 1 3 2 1 1)))
 
 
-(-> (pings 4 101 52 9 77)
+(-> (pings 9 78 540 198 170)
     (connect-> destination)
-    (run-with context (current-time context)2))
+    (run-with context (current-time context)6))
 

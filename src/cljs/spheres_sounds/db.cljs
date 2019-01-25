@@ -1,6 +1,6 @@
 (ns spheres-sounds.db
   (:require [spheres-sounds.records :refer [spheres-map]]
-            [cognitect.transit :as t]
+            [cognitect.transit :refer [reader writer read]]
             ;; [cljs.reader :as edn]
             )
   )
@@ -24,9 +24,9 @@
 
 ;(slurp spheres)
 
-(def r (t/reader :json))
-(def w (t/writer :json))
-(println (t/read r "{\"foo\":\"bar\"}"))
+(def r (reader :json))
+(def w (writer :json))
+(println (read r "{\"foo\":\"bar\"}"))
 
 ;(t/read r "resources/public/spheres.edn")
 

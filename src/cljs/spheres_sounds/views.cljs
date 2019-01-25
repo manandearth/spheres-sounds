@@ -154,7 +154,7 @@
      [:svg {:x 100}
       (for [system systems]
         (if (= selected-system (clojure.string/capitalize system))
-          [:g  {:style {:cursor "pointer"}}
+          [:g  {:key (str system " selected") :style {:cursor "pointer"}}
            [:rect.selected {:x (* 127 (.indexOf systems system))
                           :y 0
                           :width 110
@@ -165,7 +165,7 @@
                           :on-click #(dispatch [:select-system (clojure.string/capitalize system)]) 
                           } (clojure.string/capitalize system)]
            ]
-          [:g {:style {:cursor "pointer"}}
+          [:g {:key (str system " not-selected") :style {:cursor "pointer"}}
            [:rect.system {:x (* 127 (.indexOf systems system))
                           :y 0
                           :width 110
@@ -181,8 +181,8 @@
 
 (defn selected-system-box []
   (let [x-position 100
-        parent @(subscribe [::subs/selected-system-attr])
-        spheres @(subscribe [::subs/selected-spheres])
+        parent (subscribe [::subs/selected-system-attr])
+        spheres (subscribe [::subs/sorted-attempt])
         ]
     [:svg.system {:x 0
                   :y 200
@@ -207,11 +207,11 @@
                     :width 1000
                     :height 100
                     }]
-     [:circle.sphere {:cx (+ 100 (/ (.log js/Math (:volume parent)) 2 ))
+     [:circle.sphere {:cx (+ 100 (/ (.log js/Math (:volume @parent)) 2 ))
                       :cy  50
                       ;;TODO I'm here with the pow!
-                      :r  (/ (.pow js/Math (.log10 js/Math (:volume parent))3) 100) 
-                      :fill (case (:name parent)
+                      :r  (/ (.pow js/Math (.log10 js/Math (:volume @parent))3) 100) 
+                      :fill (case (:name @parent)
                               "Sun" "#ff6"
                               "Earth" "#19d"
                               "Mars" "#833"
@@ -223,11 +223,11 @@
                       :filter "url(#f2)"
                       :mask "url(#m1)"}
       ]
-     (let [apo-list (map #(.log js/Math (/ (+ (:periapsis %) (:apoapsis %)) 2)) spheres)
+     (let [apo-list (map #(.log js/Math (/ (+ (:periapsis %) (:apoapsis %)) 2)) @spheres)
            apo-max (apply max (rest apo-list))
            apo-min (apply min (rest apo-list))
            apo-average  (/ (+ apo-max apo-min) 2)]
-  (for [sphere (rest spheres)]
+  (for [sphere (rest @spheres)]
     [:circle.satelite {:key (str "circle " sphere)
                        :cx (+ 20 (/ (.log js/Math (:apoapsis sphere)) (/ apo-max 1000)))
                        :cy 50
@@ -235,7 +235,7 @@
                        :filter "url(#f2"}]))
      ]))
 
-(.pow js/Math (apply max (map #(.log js/Math (:apoapsis %)) (rest @(subscribe [::subs/selected-spheres])))) 2)
+;; (.pow js/Math (apply max (map #(.log js/Math (:apoapsis %)) (rest @(subscribe [::subs/sorted-selected])))) 2)
 
 
 ;;TODO - don't know why the spheres toggle on vis select other than just on and off..
@@ -244,20 +244,21 @@
   [:svg {:style {:width 1200 :height 1050}}
    [:rect.system {:x 100 :y 20 :width 1000 :height 1000}]
    [:svg  {:x 40 :width 1080 :height 300}
-    (let [selected-system @(subscribe [::subs/selected-spheres])]
-      (for [sphere selected-system]
+
+    (let [selected-system (subscribe [::subs/sorted-attempt])]
+      (for [sphere @selected-system]
         (if (:vis sphere)
           [:g 
            {:key (str "g-" sphere)
             :on-click #(dispatch [:invisible (:name sphere)])}
-           [:rect.selected {:width 70 :height 20 :x (* 81 (inc (.indexOf selected-system sphere))) :y 100
-                               }]
-           [:text.spheres.visible {:x (* 81 (inc (.indexOf selected-system sphere))) :y 115}
+           [:rect.selected {:width 70 :height 20 :x (* 81 (inc (.indexOf @selected-system sphere))) :y 100
+                            }]
+           [:text.spheres.visible {:x (* 81 (inc (.indexOf @selected-system sphere))) :y 115}
             (:name sphere)]]
           [:g {:key (str "g-" sphere)
                :on-click #(dispatch [:visible (:name sphere)])}
-           [:rect.system {:width 70 :height 20 :x (* 81 (inc (.indexOf selected-system sphere))) :y 100}]
-           [:text.spheres {:x (* 81 (inc (.indexOf selected-system sphere))) :y 115}
+           [:rect.system {:width 70 :height 20 :x (* 81 (inc (.indexOf @selected-system sphere))) :y 100}]
+           [:text.spheres {:x (* 81 (inc (.indexOf @selected-system sphere))) :y 115}
             (:name sphere)]]
           )))]
    [selected-system-box]]
@@ -272,7 +273,7 @@
   (let [name (subscribe [::subs/name])
           spheres (subscribe [::subs/spheres])
         ]
-    [:body {:style {:width 1200
+    [:div {:style {:width 1200
                     :height 1000
                     :position "absolute"}}
      [:div.guide
