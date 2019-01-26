@@ -54,15 +54,29 @@
                        (list (assoc (first (filter #(= parent (:name %)) spheres)) :periapsis 0 :apoapsis 0))
                        (filter #(= parent (:parent %))  spheres)))))
 
+(reg-sub
+ ::selected-attr
+ (fn [db]
+   (:selected-attr db)))
 
 (reg-sub
- ::toggled-apo
+ ::toggled-attr
+ :<- [::selected-attr]
  :<- [::sorted-spheres]
- (fn [spheres _]
-   (map :apoapsis (filter :vis spheres))))
+ (fn [[attr spheres] _]
+   (map attr (filter :vis spheres))))
 
-(subscribe [::toggled-apo])
- 
+(def non-numeric-keys [:parent :satelites :form :name :vis])
+
+(reg-sub
+ ::attributes
+ :<- [::spheres]
+ (fn [spheres _]
+   (remove (set non-numeric-keys) (keys (first spheres)))))
+
+(subscribe [::attributes])
+(remove (set non-numeric-keys) (keys (first @(subscribe [::spheres]))))
+(subscribe [::selected-attr])
 
 ;; (subscribe [::sorted-attempt])
 ;; (filter #(= @(subscribe [::selected-system]) (:name %)) @(subscribe [::spheres]))

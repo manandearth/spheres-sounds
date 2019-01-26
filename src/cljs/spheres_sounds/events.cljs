@@ -24,10 +24,15 @@
  (fn [db [_ sphere]]
    (assoc-in db [:spheres sphere :vis] false)))
 
-(reg-event-fx
- :apo-sound
- (fn [cofx [_ ]])
- )
+(reg-event-db
+ :select-attribute
+ (fn [db [_ attr]]
+   (assoc db :selected-attr attr)))
+
+;; (reg-event-fx
+;;  :apo-sound
+;;  (fn [cofx [_ ]])
+;;  )
 
 ;; (reg-event-db
 ;;  :visible

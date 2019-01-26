@@ -65,21 +65,39 @@
   [:text.selected {:font-family "Share Tech Mono, monospace"
                  :font-size "1.5rem"
                  :fill "#f2f"
-                 :text-shadow "1px 1px #999"}]
+                 :text-shadow "0.1px 0.1px #999"}]
 
   [:text.spheres {:font-family "Share Tech Mono, monospace"
                  :font-size "1rem"
                   :fill "#44a"
-                  :text-shadow "1px 1px #bbb"
+                  :text-shadow "0.1px 0.1px #bbb"
                   :cursor "pointer"}
    [:&:hover {:fill "#f2f"}]]
 
   [:text.spheres.visible {:font-family "Share Tech Mono, monospace"
                  :font-size "1rem"
                   :fill "#f2f"
-                  :text-shadow "1px 1px #bbb"
+                  :text-shadow "0.1px 0.1px #bbb"
                   :cursor "pointer"}
-   ])
+   ]
+
+
+
+  [:.slider {
+             :display "inline-block"
+             :width "500px"
+             :height "20px"
+             :padding "20px"
+             :position "relative"
+             :margin-left "150px"
+             }]
+  
+
+
+
+
+
+  )
 
 
 

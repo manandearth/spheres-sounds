@@ -81,7 +81,7 @@
    (map dings v)))
 
 
-;; (dings 100 200)
+(dings 100 200)
 
 
                                         ;[freq1 freq2]

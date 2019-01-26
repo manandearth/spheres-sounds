@@ -11,7 +11,8 @@
                        {name (assoc sphere :name name)}
                        ))
    :systems ["sun" "earth" "mars" "jupiter" "saturn" "uranus" "neptune" "pluto"]
-   :selected-system "Sun"})
+   :selected-system "Sun"
+   :selected-attr :apoapsis})
 
 
 ;;(:spheres default-db)

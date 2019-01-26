@@ -3,7 +3,7 @@
    [re-frame.core :refer [subscribe dispatch]]
    [spheres-sounds.subs :as subs]
    [spheres-sounds.audio :as audio]
-   
+   [reagent.core :as r]
    ))
 
 (defonce context (cljs-bach.synthesis/audio-context))
@@ -190,7 +190,7 @@
         spheres (subscribe [::subs/sorted-spheres])
         ]
     [:svg.system {:x 0
-                  :y 200
+                  :y 100
                   :height 120
                   :width 1100}
      [:defs
@@ -242,52 +242,99 @@
 
 ;; (.pow js/Math (apply max (map #(.log js/Math (:apoapsis %)) (rest @(subscribe [::subs/sorted-selected])))) 2)
 
+
+(defn stage []
+  [:div [:svg {:style {:width 1200 :height 250}}
+         [:rect.system {:x 100 :y 20 :width 1000 :height 200}]
+         [:svg  {:x 40 :width 1080 :height 300}
+
+          (let [selected-system (subscribe [::subs/sorted-spheres])]
+            (for [sphere @selected-system]
+              (if (:vis sphere)
+                [:g 
+                 {:key (str "g-" sphere)
+                  :on-click #(dispatch [:invisible (:name sphere)])}
+                 [:rect.selected {:width 70 :height 20 :x (* 81 (inc (.indexOf @selected-system sphere))) :y 50
+                                  }]
+                 [:text.spheres.visible {:x (* 81 (inc (.indexOf @selected-system sphere))) :y 65}
+                  (:name sphere)]]
+                [:g {:key (str "g-" sphere)
+                     :on-click #(dispatch [:visible (:name sphere)])}
+                 [:rect.system {:width 70 :height 20 :x (* 81 (inc (.indexOf @selected-system sphere))) :y 50}]
+                 [:text.spheres {:x (* 81 (inc (.indexOf @selected-system sphere))) :y 65}
+                  (:name sphere)]]
+                )))]
+         [selected-system-box]
+         ]]
+  )
+
+
+
+
 (defn try-me
   []
   [:svg
-   (let [toggled-on (subscribe [::subs/toggled-apo])
-         toggled-reduced (map #(/ % 1000000) @(subscribe [::subs/toggled-apo]))]
+   (let [toggled-on (subscribe [::subs/toggled-attr])
+         toggled-reduced (map #(/ % 1000000) @(subscribe [::subs/toggled-attr]))]
      
      [:g {:key "try-me"
           :cursor "pointer"
           :on-click #(dispatch [:audio toggled-reduced])}
-      [:rect.system {:x 500 :y 350 :width 100 :height 30}]
-      [:text.system {:x 507 :y 370} "try-me"]])])
+      [:rect.system {:x 550 :y 110 :width 100 :height 30}]
+      [:text.system {:x 560 :y 130} "try-me"]])])
+
 
 ;; (map #(/ % 100000) @(subscribe [::subs/toggled-apo]))
 ;; (0 698.169 1089.39 1520.98232 2492 4454.1 8166.2 15145 30080 72319000)
 ;(map audio/dings (map #(/ % 100000) @(subscribe [::subs/toggled-apo])))
 
-(defn stage []
-  [:svg {:style {:width 1200 :height 1050}}
-   [:rect.system {:x 100 :y 20 :width 1000 :height 1000}]
-   [:svg  {:x 40 :width 1080 :height 300}
-
-    (let [selected-system (subscribe [::subs/sorted-spheres])]
-      (for [sphere @selected-system]
-        (if (:vis sphere)
-          [:g 
-           {:key (str "g-" sphere)
-            :on-click #(dispatch [:invisible (:name sphere)])}
-           [:rect.selected {:width 70 :height 20 :x (* 81 (inc (.indexOf @selected-system sphere))) :y 100
-                            }]
-           [:text.spheres.visible {:x (* 81 (inc (.indexOf @selected-system sphere))) :y 115}
-            (:name sphere)]]
-          [:g {:key (str "g-" sphere)
-               :on-click #(dispatch [:visible (:name sphere)])}
-           [:rect.system {:width 70 :height 20 :x (* 81 (inc (.indexOf @selected-system sphere))) :y 100}]
-           [:text.spheres {:x (* 81 (inc (.indexOf @selected-system sphere))) :y 115}
-            (:name sphere)]]
-          )))]
-   [selected-system-box]
-   [try-me]
-
-   ]
+(defn attribute-selector []
+  [:svg
+   [:rect.system {:x 110 :y 50 :width 980 :height 50}]
+   (let [attributes (subscribe [::subs/attributes])
+         selected-attr @(subscribe [::subs/selected-attr])]
+     (for [attr @attributes]
+       (if (= attr selected-attr)
+         [:g {:cursor "pointer" :on-click #(dispatch [:select-attribute attr])}
+          [:rect.selected {:x (* 140 (inc (.indexOf @attributes attr)))  :y 60
+                           :height 30 :width 100
+                           }]
+          [:text.spheres.visible {:x (* 140 (inc (.indexOf @attributes attr)))  :y 80
+                           :height 30 :width 100
+                           } attr]]
+         [:g {:cursor "pointer" :on-click #(dispatch [:select-attribute attr])}
+          [:rect.system  {:x (* 140 (inc (.indexOf @attributes attr)))  :y 60
+                           :height 30 :width 100
+                           }]
+          [:text.spheres.system {:x (* 140 (inc (.indexOf @attributes attr)))  :y 80
+                           :height 30 :width 100
+                           } attr]]
+         )))]
   )
+
+(defn player []
+  [:svg {:width 1200 :height 250}
+   [:rect.system {:x 100 :y 50 :width 1000 :height 100}]
+   [attribute-selector]
+   [try-me]])
 
 ;; (subscribe [::subs/name])
 ;;(:satelites @(subscribe [::subs/selected-system-attr]))
 ;; (for [sphere @(subscribe [::subs/selected-spheres])] (:name sphere))
+(def output-gain (r/atom {:gain "2.0"}))
+
+(defn volume-slider []
+  [:div.slider {:width 1000 :height 500}
+   [:h2  {:style {:margin-left "340px"}} "-G-A-I-N-" ]
+   [:input.slider {:type "range" :id "gain" :name "volume" :min "0" :max "2.0"  :step "0.1" 
+                   :on-change (fn [e] (swap! output-gain assoc :gain (.-target.value e)))
+                   }]
+   [:h3 {:style {:width "100%" :margin-left "400px"}} (:gain @output-gain)]
+  [try-me] 
+   
+   ])
+
+
 
 
 (defn main-panel []
@@ -302,8 +349,11 @@
 [:h3 "Some of the bodies in our solar system are gigatic and they travel in greater speed than anything on this planet, yet the are silent. The following is an interactive exploration of the relation between some of those bodies through sound."]
       [:h2 "Select a system:"]]
      [systems-menu]
-     
      [systems-box]
      [:h2.guide "Toggle spheres on and off:"]
      [stage]
+     [player]
+     [volume-slider]
      ]))
+
+
