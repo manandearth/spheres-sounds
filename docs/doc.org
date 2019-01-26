@@ -1,12 +1,14 @@
 #+title: Spheres-sounds
 #+startup: indent showall
 * dev
+
 ** starting up
 - C-c M-j
 - (require '[figwheel-sidecar-repl-api :as fw])
 - (fw/start-figwheel!)
 - (fw/cljs-repl)
 then for the CSS that's in clj,-  M-x cider-connect-sibling-clj
+
 ** deployment
 *** github-pages
 - add a remote 'github' - git remote add github https://github.com/manandearth/spheres-rf-ha.git
@@ -20,6 +22,7 @@ then for the CSS that's in clj,-  M-x cider-connect-sibling-clj
 - git add . and git commit -m ""
 - git push github gh-pages
 - *ISSUE* - when I committed changed to the index.html in github website, I had to -> git pull github gh-pages
+
 ** cljs-bach
 cljs-bach is required in the audio ns:
 
@@ -57,6 +60,7 @@ That is for two frequencies so first I will need to
 create the multimethod.  Then I will see if some orbit
 values create anything interesting in any of the
 systems.
+
 ** functionality
 *** DONE toggle the selected system in the menu itself
 make a dispatch on click to add the clicked name to :vis
@@ -67,22 +71,39 @@ look into how to toggle within a system, if I do it the
 then a planet that is toggled off in the solar system for example
 is toggled off in its own system (might be desired or not...).
 *** DONE select attribute to examine
-*** TODO flex the function according to attribute and system
+*** DONE flex the function according to attribute and system
 perhaps we need a toggle for global and local.. so that
 the scale changes/or not when zooming into a system.
+
+-kind of solved it with global for frequency..
+
+*** TODO make the gain slider do something...
 ** transit-cljs
 *** TODO converting to edn or json and back
+
 ** visual design
 *** DONE representation of the elements
 glowing spheres
 *** DONE the page look
 dark bg, retro glow.
+*** TODO some sort of scratch board where hovering will change the sounds.
+perhaps the spheres themselves activated by hover or
+some design of a visual instrument
+*** TODO the green outline light on spheres in the systems-box should stay on for a selected system. 
+
 ** data structure
 generally there's an hirarchy of systems -> a system ->
 sphere -> its attributes.
+
 ** sound and the data - relations
 *** TODO how does each attribute relate to sound:
 - If I represent the values as frequency, the greater
 numbers are higher tones.. is that right?
 a bigger planet is a higher note?
-- 
+
+** NEW FEATURES 
+*Looking to add something I didn't try before*
+
+- auth -a `buddy` chapter on Lambda Island [[https://lambdaisland.com/episodes/buddy-authentication][here!]]
+- tests [[https://lambdaisland.com/episodes/introduction-clojure-testing][lambdaisland tests intro]] and [[https://lambdaisland.com/episodes/testing-clojurescript][lambdaisland cljs tests]] and [[https://lambdaisland.com/episodes/acceptance-testing-sparkledriver][also this]] and lastly [[https://lambdaisland.com/episodes/generative-testing-clojure-test-check][this.]]
+ 
