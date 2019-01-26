@@ -85,7 +85,7 @@
      (/ (- high-point low-point) freq-range)) ;the freq-range is what's audiable in hz.
    ))
 
-(subscribe [::rate])
+(subscribe [::freq-rate])
 
 
 

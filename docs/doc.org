@@ -81,3 +81,8 @@ dark bg, retro glow.
 generally there's an hirarchy of systems -> a system ->
 sphere -> its attributes.
 ** sound and the data - relations
+*** TODO how does each attribute relate to sound:
+- If I represent the values as frequency, the greater
+numbers are higher tones.. is that right?
+a bigger planet is a higher note?
+- 
