@@ -34,7 +34,7 @@ cljs-bach is required in the audio ns:
 **** TODO look carefully at klangmeister
 I am not sure how to arrange the namespaces, Klangmeister might give
 me an idea
-*** TODO create a multimethod ..
+*** DONE create a multimethod ..
 first thing that occured to me is to use cljs-bach builtin `add` to
 put together a whole system in one sound I'll start with
 frequency. basically:
@@ -58,14 +58,18 @@ create the multimethod.  Then I will see if some orbit
 values create anything interesting in any of the
 systems.
 ** functionality
-*** TODO toggle the selected system in the menu itself
+*** DONE toggle the selected system in the menu itself
 make a dispatch on click to add the clicked name to :vis
 in the db for example.
-*** TODO toggle visibility of spheres from system
+*** DONE toggle visibility of spheres from system
 look into how to toggle within a system, if I do it the
 *spheres-rf-ha* way -  it toggles visibility globally and
 then a planet that is toggled off in the solar system for example
 is toggled off in its own system (might be desired or not...).
+*** DONE select attribute to examine
+*** TODO flex the function according to attribute and system
+perhaps we need a toggle for global and local.. so that
+the scale changes/or not when zooming into a system.
 ** transit-cljs
 *** TODO converting to edn or json and back
 ** visual design

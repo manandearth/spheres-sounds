@@ -74,7 +74,26 @@
  (fn [spheres _]
    (remove (set non-numeric-keys) (keys (first spheres)))))
 
-(subscribe [::attributes])
+(reg-sub
+ ::freq-rate
+ :<- [::spheres]
+ :<- [::selected-attr]
+ (fn [[spheres attr] _]
+   (let [high-point (apply max (map attr spheres))
+         low-point (apply min (map attr spheres))
+         freq-range 11970]
+     (/ (- high-point low-point) freq-range)) ;the freq-range is what's audiable in hz.
+   ))
+
+(subscribe [::rate])
+
+
+
+(apply min (map @(subscribe [::selected-attr]) @(subscribe [::spheres])))
+
+
+
+@(subscribe [::spheres])
 (remove (set non-numeric-keys) (keys (first @(subscribe [::spheres]))))
 (subscribe [::selected-attr])
 

@@ -92,7 +92,11 @@
              :margin-left "150px"
              }]
   
-
+  [:p {:font-family "Share Tech Mono, monospace"
+                 :font-size "1.3rem"
+                  :color "#a2a"
+                  :text-shadow "0.1px 0.1px #bbb"
+                  }]
 
 
 

@@ -275,7 +275,9 @@
   []
   [:svg
    (let [toggled-on (subscribe [::subs/toggled-attr])
-         toggled-reduced (map #(/ % 1000000) @(subscribe [::subs/toggled-attr]))]
+         freq-rate (subscribe [::subs/freq-rate])
+         adjustment 30 ;30hz is the lowest audiable so the range is increased by that much for 0 to be audiable.
+         toggled-reduced (map #(+ adjustment (/ % @freq-rate)) @toggled-on)]
      
      [:g {:key "try-me"
           :cursor "pointer"
@@ -283,6 +285,7 @@
       [:rect.system {:x 550 :y 110 :width 100 :height 30}]
       [:text.system {:x 560 :y 130} "try-me"]])])
 
+(map #(+ 30 (/ % @(subscribe [::subs/freq-rate]))) @(subscribe [::subs/toggled-attr]))
 
 ;; (map #(/ % 100000) @(subscribe [::subs/toggled-apo]))
 ;; (0 698.169 1089.39 1520.98232 2492 4454.1 8166.2 15145 30080 72319000)
@@ -334,6 +337,18 @@
    
    ])
 
+(defn footer []
+  [:div.footer
+   ;; {:style {:background "#ddd"
+   ;;               :display "block"
+   ;;           }}
+   [:p
+    {:style
+     {:margin-left "100px"
+      :padding-bottom "100px"}}
+    "Made by"
+    [:a {:href "https://github.com/manandearth"} " Adam Gefen, "]
+    "A clojure developer, an open source under the " [:a {:href "https://opensource.org/licenses/Artistic-2.0"} "Apache Artistic License 2.0"]]] )
 
 
 
@@ -352,8 +367,11 @@
      [systems-box]
      [:h2.guide "Toggle spheres on and off:"]
      [stage]
+     [:h2.guide "Choose the attribute that will be used for frequency:"]
+     [:h3.guide "This range will be set globally -> 30Hz the lowest and 12KHz the highest"]
      [player]
      [volume-slider]
+     [footer]
      ]))
 
 
