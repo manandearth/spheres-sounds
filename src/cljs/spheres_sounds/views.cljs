@@ -355,9 +355,9 @@
                 :fill "#888888"
                 :key (str "text-" (:name body))} (:name body)]]))])])
 
-(list (@(subscribe [::subs/selected-attr]) (nth @(subscribe [::subs/sorted-spheres]) 3)))
+;; (list (@(subscribe [::subs/selected-attr]) (nth @(subscribe [::subs/sorted-spheres]) 3)))
 
-(map #(+ 30 (/ % @(subscribe [::subs/freq-rate]))) @(subscribe [::subs/toggled-attr]))
+;; (map #(+ 30 (/ % @(subscribe [::subs/freq-rate]))) @(subscribe [::subs/toggled-attr]))
 
 (defn try-me
   []

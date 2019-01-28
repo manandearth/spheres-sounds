@@ -81,7 +81,7 @@
    (map dings v)))
 
 
-(map dang [330 33 3333])
+;; (map dang [330 33 3333])
 
 
 
