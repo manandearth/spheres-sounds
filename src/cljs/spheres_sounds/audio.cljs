@@ -81,17 +81,8 @@
    (map dings v)))
 
 
-(dings 4000)
+(map dang [330 33 3333])
 
 
-                                        ;[freq1 freq2]
 
-;; (connect->
-;;  (add
-;;   (sine freq1);(gain 0.1)
-;;   (sine freq2))
-;;  (gain 0.2)
-;;  (adshr 1 1 1 1 1))
-;; (-> (dings 280 290)
-;;     (connect-> destination)
-;;     (run-with context (current-time context) 6))
+                                        ;(map dings [365.256363004 200 2000 3400])

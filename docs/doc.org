@@ -78,6 +78,7 @@ the scale changes/or not when zooming into a system.
 -kind of solved it with global for frequency..
 
 *** TODO make the gain slider do something...
+
 ** transit-cljs
 *** TODO converting to edn or json and back
 
@@ -107,3 +108,4 @@ a bigger planet is a higher note?
 - auth -a `buddy` chapter on Lambda Island [[https://lambdaisland.com/episodes/buddy-authentication][here!]]
 - tests [[https://lambdaisland.com/episodes/introduction-clojure-testing][lambdaisland tests intro]] and [[https://lambdaisland.com/episodes/testing-clojurescript][lambdaisland cljs tests]] and [[https://lambdaisland.com/episodes/acceptance-testing-sparkledriver][also this]] and lastly [[https://lambdaisland.com/episodes/generative-testing-clojure-test-check][this.]]
  
+  

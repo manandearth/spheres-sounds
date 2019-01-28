@@ -289,6 +289,7 @@
 ;; (.pow js/Math (apply max (map #(.log js/Math (:apoapsis %)) (rest @(subscribe [::subs/sorted-selected])))) 2)
 
 
+
 (defn stage []
   [:div [:svg {:style {:width 1200 :height 250}}
          [:rect.system {:x 100 :y 20 :width 1000 :height 200}]
@@ -314,8 +315,49 @@
          ]]
   )
 
+;;TODO dispatch the audio still doesn't work
+(defn graph []
+  [:svg {:width 1300 :x -200 :y 150}
+   (let [spheres (subscribe [::subs/sorted-spheres])
+         selected-attr @(subscribe [::subs/selected-attr])
+         sys-selected @(subscribe [::subs/selected-system])
+         ;;for the circles:
+         min-val (apply min (map selected-attr (filter #(= true (:vis %)) @spheres)))
+         max-val (apply max (map selected-attr (filter #(= true (:vis %)) @spheres)))
+         fit  (/ max-val 900)
+         ;;for the sound:
+         ]
+     [:g (for [body @spheres
+               :when (:vis body) ;toggle visability
+               ]
+           (let [trans (+ 350 (/ (selected-attr body) fit))
+                 size (.log js/Math (:volume body))
+                 freq-rate (subscribe [::subs/freq-rate])
+                 adjustment 30
+                 ]
+             [:g {:key (str "g-" (:name body))
+                                        ;:data-tooltip "boo"
+                  :on-mouse-over #(dispatch [:audio (list (+ adjustment (/ (selected-attr body) @freq-rate)))])
+                  }
+              [:circle#graph
+               {:r size
+                :cx trans 
+                :cy 100
+                ;; :fill "#6666"
+                :key (str "circle-" (:name body))
+                }]
+                                        ;[tooltip2 xtrans ytrans x-select y-select body]
 
+              [:text#graph
+               { :x trans
+                :y 100
+                :font-size 10
+                :fill "#888888"
+                :key (str "text-" (:name body))} (:name body)]]))])])
 
+(list (@(subscribe [::subs/selected-attr]) (nth @(subscribe [::subs/sorted-spheres]) 3)))
+
+(map #(+ 30 (/ % @(subscribe [::subs/freq-rate]))) @(subscribe [::subs/toggled-attr]))
 
 (defn try-me
   []
@@ -331,7 +373,8 @@
       [:rect.system {:x 550 :y 110 :width 100 :height 30}]
       [:text.system {:x 560 :y 130} "try-me"]])])
 
-(map #(+ 30 (/ % @(subscribe [::subs/freq-rate]))) @(subscribe [::subs/toggled-attr]))
+;(map #(+ 30 (/ % @(subscribe [::subs/freq-rate]))) @(subscribe [::subs/toggled-attr]))
+
 
 ;; (map #(/ % 100000) @(subscribe [::subs/toggled-apo]))
 ;; (0 698.169 1089.39 1520.98232 2492 4454.1 8166.2 15145 30080 72319000)
@@ -362,9 +405,11 @@
   )
 
 (defn player []
-  [:svg {:width 1200 :height 250}
-   [:rect.system {:x 100 :y 50 :width 1000 :height 100}]
+  [:svg {:width 1200 :height 350}
+   [:rect.system {:x 100 :y 50 :width 1000 :height 300}]
    [attribute-selector]
+[graph]
+   
    [try-me]])
 
 ;; (subscribe [::subs/name])
@@ -379,7 +424,7 @@
                    :on-change (fn [e] (swap! output-gain assoc :gain (.-target.value e)))
                    }]
    [:h3 {:style {:width "100%" :margin-left "400px"}} (:gain @output-gain)]
-  [try-me] 
+   ;[try-me] 
    
    ])
 
@@ -407,7 +452,7 @@
                     :position "absolute"}}
      [:div.guide
       [:h1 {:title "hey"} @name "/interplanetary instrument"]
-[:h3 "Some of the bodies in our solar system are gigatic and they travel in greater speed than anything on this planet, yet they are silent. The following is an interactive exploration of the relation between some of those bodies through sound."]
+[:h3 "Some of the bodies in our solar system are gigantic and they travel in greater speed than anything on this planet, yet they are silent. The following is an interactive exploration of the relation between some of those bodies through sound."]
       [:h2 "Select a system:"]]
      [systems-menu]
      [systems-box]

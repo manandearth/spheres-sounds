@@ -99,7 +99,7 @@
                              :circumference 154704.6 
                              :form "planet" 
                              :orbital_period 60182 
-                             :parent "sun" 
+                             :parent "Sun" 
                              :vis true
                              :included false}
                   "Pluto" {:volume 7057000000 

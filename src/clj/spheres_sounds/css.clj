@@ -74,6 +74,8 @@
                   :cursor "pointer"}
    [:&:hover {:fill "#f2f"}]]
 
+  [(s/+ :text.spheres:hover :circle.earth) {:fill "#fff"}]
+
   [:text.spheres.visible {:font-family "Share Tech Mono, monospace"
                  :font-size "1rem"
                   :fill "#f2f"
@@ -81,8 +83,19 @@
                   :cursor "pointer"}
    ]
 
+  [:text#graph
+   {:font-family "Share Tech Mono, monospace"
+                 :font-size "1rem"
+                  :fill "#44a"
+                  :text-shadow "0.1px 0.1px #bbb"
+                  :cursor "pointer"}
+   [:&:hover {:fill "#f2f"}]]
 
 
+  [:circle#graph
+   {:fill "#bbb"}
+   [:&:hover {:fill "#a8a"}]]
+  
   [:.slider {
              :display "inline-block"
              :width "500px"
