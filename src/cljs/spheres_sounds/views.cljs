@@ -315,19 +315,69 @@
          ]]
   )
 
-;;TODO dispatch the audio still doesn't work
+
+
+(defn graph-tooltip
+  "helper function defines tooltip text"
+  [trans selected-attr body]
+  [:g.tooltip
+   [:rect {:x 700
+           :y 0
+           :width 200
+           :height 20
+           :opacity 0.4
+           :rx 5
+           :fill "#ccc"
+           }
+    ]
+   [:text.tooltip {:x 700
+                   ;(+ 20 trans)
+                   :y 15}
+    (selected-attr body)
+    (case selected-attr
+      :apoapsis " km"
+      :periapsis " km"
+      :circumference " km"
+      :mass " kg"
+      :volume " km³"
+      :orbital_period " days"
+      :surface_area " km²" "")]
+   ]
+  )
+
+
+;;TODO working on keys...: 97 is '\a'
+(defn a? [evt]
+  (= (.-which evt) 97)) ;;\a
+
+(defn todo-input []
+  (let [title (r/atom "")]
+    (fn []
+      [:input#new-todo {,,,
+                        :on-key-down #(when (a? %)
+                                        (dispatch [:todos/add @title])
+                                        (reset! title ""))}])))
+
+
+
+
+
 (defn graph []
-  [:svg {:width 1300 :x -200 :y 150}
+  [:svg {:width 1800 :x -200 :y 150}
    (let [spheres (subscribe [::subs/sorted-spheres])
          selected-attr @(subscribe [::subs/selected-attr])
          sys-selected @(subscribe [::subs/selected-system])
+         adshr @(subscribe [::subs/envelope])
          ;;for the circles:
          min-val (apply min (map selected-attr (filter #(= true (:vis %)) @spheres)))
          max-val (apply max (map selected-attr (filter #(= true (:vis %)) @spheres)))
          fit  (/ max-val 900)
          ;;for the sound:
          ]
-     [:g (for [body @spheres
+     [:g
+      {:on-key-press #(when (= (.-which %) 97)
+                                  (js/alert "pressed 'a'"))}
+      (for [body @spheres
                :when (:vis body) ;toggle visability
                ]
            (let [trans (+ 350 (/ (selected-attr body) fit))
@@ -337,7 +387,7 @@
                  ]
              [:g {:key (str "g-" (:name body))
                                         ;:data-tooltip "boo"
-                  :on-mouse-over #(dispatch [:audio (list (+ adjustment (/ (selected-attr body) @freq-rate)))])
+                  :on-mouse-over #(dispatch [:audio adshr (+ adjustment (/ (selected-attr body) @freq-rate))])
                   }
               [:circle#graph
                {:r size
@@ -347,38 +397,56 @@
                 :key (str "circle-" (:name body))
                 }]
                                         ;[tooltip2 xtrans ytrans x-select y-select body]
-
               [:text#graph
                { :x trans
                 :y 100
                 :font-size 10
                 :fill "#888888"
-                :key (str "text-" (:name body))} (:name body)]]))])])
+                :key (str "text-" (:name body))} (:name body)]
+              [graph-tooltip trans selected-attr body]
+              
+              ]))])])
+
+
+;; (dispatch [:audio @(subscribe
+;;                    [::subs/envelope])
+;;            (+ 30
+;;               (/ (@(subscribe [::subs/selected-attr])
+;;                   (first @(subscribe [::subs/spheres])))
+;;                  @(subscribe [::subs/freq-rate])))])
+
+
 
 ;; (list (@(subscribe [::subs/selected-attr]) (nth @(subscribe [::subs/sorted-spheres]) 3)))
 
 ;; (map #(+ 30 (/ % @(subscribe [::subs/freq-rate]))) @(subscribe [::subs/toggled-attr]))
 
-(defn try-me
+(defn chord
   []
   [:svg
    (let [toggled-on (subscribe [::subs/toggled-attr])
          freq-rate (subscribe [::subs/freq-rate])
          adjustment 30 ;30hz is the lowest audiable so the range is increased by that much for 0 to be audiable.
-         toggled-reduced (map #(+ adjustment (/ % @freq-rate)) @toggled-on)]
+         toggled-reduced  (vec (map #(+ adjustment (/ % @freq-rate)) @toggled-on))
+         adshr @(subscribe [::subs/envelope])]
      
-     [:g {:key "try-me"
+     [:g {:key "chord"
           :cursor "pointer"
-          :on-click #(dispatch [:audio toggled-reduced])}
+          :on-click #(dispatch [:chord adshr toggled-reduced])}
       [:rect.system {:x 550 :y 110 :width 100 :height 30}]
-      [:text.system {:x 560 :y 130} "try-me"]])])
+      [:text.system {:x 560 :y 130} "Chord"]])])
 
-;(map #(+ 30 (/ % @(subscribe [::subs/freq-rate]))) @(subscribe [::subs/toggled-attr]))
+;; (vec (map #(+ 30 (/ % @(subscribe [::subs/freq-rate]))) @(subscribe [::subs/toggled-attr])))
+;; (30
+;;  30.0007007975774
+;;  30.00112044523016 
+;;  30.001773676627167 
+;;  30.00313985121476)
 
 
-;; (map #(/ % 100000) @(subscribe [::subs/toggled-apo]))
+;;(map #(/ % 100000) @(subscribe [::subs/toggled-apo]))
 ;; (0 698.169 1089.39 1520.98232 2492 4454.1 8166.2 15145 30080 72319000)
-;(map audio/dings (map #(/ % 100000) @(subscribe [::subs/toggled-apo])))
+;; (map audio/dings (map #(/ % 100000) @(subscribe [::subs/toggled-apo])))
 
 (defn attribute-selector []
   [:svg
@@ -410,11 +478,12 @@
    [attribute-selector]
 [graph]
    
-   [try-me]])
+   [chord]])
 
 ;; (subscribe [::subs/name])
-;;(:satelites @(subscribe [::subs/selected-system-attr]))
+;; (:satelites @(subscribe [::subs/selected-system-attr]))
 ;; (for [sphere @(subscribe [::subs/selected-spheres])] (:name sphere))
+
 (def output-gain (r/atom {:gain "2.0"}))
 
 (defn volume-slider []
@@ -428,6 +497,40 @@
    
    ])
 
+(defn controls []
+  [:div
+   [:svg {:width 1200 :height :150}
+    [:g
+     [:rect.system {:x 100 :y 50 :width 1000 :height 40}]
+     [:text.system {:y 80 :x 520} "-A-D-S-H-R-"]]
+    ]
+   [:div
+    [:h3 "input"]]
+   ;[volume-slider]
+   ])
+
+
+(defn envelope-input []
+  (let [envelope (r/atom "boo!")
+        env @(subscribe [::subs/envelope])]
+    (fn []
+      [:input {:type "text"
+               :value @envelope
+               :auto-focus true
+               :placeholder "a s d h r"
+               :on-change #(reset! envelope (-> % .-target .-value))
+               :on-key-press (fn [e] (when (= (.-which e) 13)
+                                       (dispatch [:set-envelope!
+                                                  (vec (map js/parseInt
+                                                              (rest (clojure.string/split @envelope #""))))])
+                                ;      (reset! envelope [1 1 1 1 1])
+                                      )
+                               )}
+       ])))
+
+
+
+
 (defn footer []
   [:div.footer
    ;; {:style {:background "#ddd"
@@ -439,7 +542,7 @@
       :padding-bottom "100px"}}
     "Made by"
     [:a {:href "https://github.com/manandearth"} " Adam Gefen, "]
-    "A clojure developer, an open source under the " [:a {:href "https://opensource.org/licenses/Artistic-2.0"} "Apache Artistic License 2.0"]]] )
+    "A clojure developer, an open source under the " [:a {:href "https://opensource.org/licenses/Artistic-2.0"} "Apache Artistic License 2.0"]]])
 
 
 
@@ -447,13 +550,20 @@
   (let [name (subscribe [::subs/name])
           spheres (subscribe [::subs/spheres])
         ]
-    [:div {:style {:width 1200
-                    :height 1000
-                    :position "absolute"}}
+
+    [:div {:on-key-down (fn [e] (when (= (.. e -which (getElementById "boo")) 13)
+                                         (js/alert "hoo!")))
+      :on-change (fn [e] (swap! output-gain assoc :gain (.-target.value e)))
+           :title "hey"
+           :id "boo"
+           :style {:width 1150
+                   :height 1000
+                   :position "absolute"}}
      [:div.guide
-      [:h1 {:title "hey"} @name "/interplanetary instrument"]
-[:h3 "Some of the bodies in our solar system are gigantic and they travel in greater speed than anything on this planet, yet they are silent. The following is an interactive exploration of the relation between some of those bodies through sound."]
-      [:h2 "Select a system:"]]
+      [:h1  @name "/interplanetary instrument"]
+      [:h3 "Some of the bodies in our solar system are gigantic and they travel in greater speed than anything on this planet, yet they are silent. The following is an interactive exploration of the relation between some of those bodies through sound."]
+      [:h2 "Select a system:"]
+      ]
      [systems-menu]
      [systems-box]
      [:h2.guide "Toggle spheres on or off:"]
@@ -461,8 +571,14 @@
      [:h2.guide "Choose the attribute that will be used for frequency:"]
      [:h3.guide {:title "you will need headphones or some reasonable speakers as the tones tend to mostly be right at the edges.."} "This range will be set globally -> 30Hz the lowest and 12KHz the highest"]
      [player]
-     [volume-slider]
+     [controls]
+     [envelope-input]
      [footer]
      ]))
 
 
+;(def now (js/Date.))
+
+;
+;; (let [me #js {:fname "Adam" :lname "Gefen"}]
+;;   (.-lname me))

@@ -85,17 +85,22 @@
      (/ (- high-point low-point) freq-range)) ;the freq-range is what's audiable in hz.
    ))
 
-(subscribe [::freq-rate])
+(reg-sub
+ ::envelope
+ (fn [db]
+   (get db :envelope)))
+
+
+;(subscribe [::freq-rate])
+
+;(apply min (map @(subscribe [::selected-attr]) @(subscribe [::spheres])))
 
 
 
-(apply min (map @(subscribe [::selected-attr]) @(subscribe [::spheres])))
+;@(subscribe [::spheres])
+;(remove (set non-numeric-keys) (keys (first @(subscribe [::spheres]))))
+;(subscribe [::selected-attr])
 
-
-
-@(subscribe [::spheres])
-(remove (set non-numeric-keys) (keys (first @(subscribe [::spheres]))))
-(subscribe [::selected-attr])
 
 ;; (subscribe [::sorted-attempt])
 ;; (filter #(= @(subscribe [::selected-system]) (:name %)) @(subscribe [::spheres]))

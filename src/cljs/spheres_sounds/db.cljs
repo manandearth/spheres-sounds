@@ -1,6 +1,6 @@
 (ns spheres-sounds.db
   (:require [spheres-sounds.records :refer [spheres-map]]
-            [cognitect.transit :refer [reader writer read]]
+            ;[cognitect.transit :refer [reader writer read]]
             ;; [cljs.reader :as edn]
             )
   )
@@ -12,10 +12,12 @@
                        ))
    :systems ["sun" "earth" "mars" "jupiter" "saturn" "uranus" "neptune" "pluto"]
    :selected-system "Sun"
-   :selected-attr :apoapsis})
+   :selected-attr :apoapsis
+   :envelope [1 1 1 1 1]})
 
-
+(:envelope default-db)
 ;;(:spheres default-db)
+
 
 
   (def spheres "~/clojure-projects/spheres/spheres-sounds/resources/public/spheres.edn")
@@ -25,9 +27,9 @@
 
 ;(slurp spheres)
 
-(def r (reader :json))
-(def w (writer :json))
-(println (read r "{\"foo\":\"bar\"}"))
+;; (def r (reader :json))
+;; (def w (writer :json))
+;; (println (read r "{\"foo\":\"bar\"}"))
 
 ;(t/read r "resources/public/spheres.edn")
 

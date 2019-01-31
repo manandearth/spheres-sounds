@@ -125,10 +125,6 @@ text.spheres:hover {
   fill: #f2f;
 }
 
-text.spheres:hover + circle.earth {
-  fill: #fff;
-}
-
 text.spheres.visible {
   font-family: Share Tech Mono, monospace;
   font-size: 1rem;
@@ -145,16 +141,34 @@ text#graph {
   cursor: pointer;
 }
 
-text#graph:hover {
-  fill: #f2f;
-}
-
 circle#graph {
   fill: #bbb;
+  cursor: pointer;
 }
 
 circle#graph:hover {
   fill: #a8a;
+}
+
+circle#graph:hover + .tooltip {
+  display: inline;
+}
+
+text#graph:hover + .tooltip {
+  display: inline;
+}
+
+g.tooltip {
+  cursor: pointer;
+  display: none;
+}
+
+text.tooltip {
+  font-family: Share Tech Mono, monospace;
+  font-size: 1rem;
+  fill: #111;
+  text-shadow: 0.1px 0.1px #bbb;
+  cursor: pointer;
 }
 
 .slider {

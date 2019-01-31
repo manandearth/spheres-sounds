@@ -6,7 +6,8 @@
                  [garden "1.3.5"]
                  [ns-tracker "0.3.1"]
                  [cljs-bach "0.3.0"]
-                 [com.cognitect/transit-cljs "0.8.239"]]
+                 [com.cognitect/transit-cljs "0.8.239"]
+                 [re-pressed "0.3.0"]]
 
   :plugins [[lein-cljsbuild "1.1.7"]
             [lein-garden "0.2.8"]]

@@ -6,83 +6,58 @@
 
 (defonce context (cljs-bach.synthesis/audio-context)) ;this went to views.
 
-(defn high-hat
-  "An imitation high-hat, made with white noise."
-  [decay]
-  (connect->
-   white-noise
-   (percussive 0.01 decay)
-   (high-pass 3000)
-   (low-pass 4500)
-   (gain 0.1)))
-
-;; (-> (high-hat 10)
-;;     (connect-> destination)
-;;     (run-with context (current-time context) 1.0))
-
-(defn ping [freq]
-  (connect->
-    (sawtooth freq)         ; Try a sawtooth wave.
-    ;(percussive 1 7) ; Try varying the attack and decay.
-    (gain 0.1)
-    ;(adshr 1 3 0 1 3)
-    ))          ; Try a bigger gain.
-
-;; (-> (ping 440)
-;;     (connect-> destination)
-;;     (run-with context (current-time context) 3))
-
-(defn pings
-  [freq1 freq2 freq3 freq4 freq5]
-  (connect->
-   (add
-    (sine freq1)
-    (sine freq2)
-    (sine freq3)
-    (sine freq4)
-    (sine freq5)) ; What happens if the two frequencies are further apart? Why?
-   (gain 0.1)
-   (adshr 1 3 2 1 1)))
-
-
-;; (-> (pings 9 78 540 198 170)
-;;     (connect-> destination)
-;;     (run-with context (current-time context)6))
-
-(defn pops
-  [& freqs]
-  (let [v [freqs]]
-    ))
-;(pops 10 "c" 30)
-
-(defn ding
+(defn note-p1
   ([]
-   (ding 0))
+   (note-p1 0))
   ([freq]
    (connect->
     (sine freq)
     (gain 0.1)
     (adshr 1 1 1 1 1))))
 
-(defn dang [freq] (-> (ding freq)
+(defn note-p2 [freq] (-> (note-p1 freq)
                (connect-> destination)
                (run-with context (current-time context) 6)))
 
 
-;; (dings 100 200 121 13 92 87 123)
-
-(defn dings
+(defn note-p3
   [& freq]
-  (map dang freq))
+  (map note-p2 freq))
 
-(reg-event-fx
- :audio
- (fn [cofx [_ v]]
-   (map dings v)))
+;(note-p3 100 200 121 13 92 87 123)
 
 
-;; (map dang [330 33 3333])
+;; (reg-event-fx
+;;  :audio
+;;  (fn [cofx [_ v]]
+;;    (map note-p3 v)))
+
+;;the following is a new synth-handler for envelope..:
+(defn play-note-handler
+  ([[a d s h r]]
+   (play-note-handler [a d s h r] 0))
+  ([[a d s h r] freq]
+   (connect->
+    (sine freq)
+    (gain 0.1)
+    (adshr a d s h r))))
+
+(defn play-note! [env freq]
+  (let [[a d s h r] env]
+    (-> (play-note-handler [a d s h r] freq)
+        (connect-> destination)
+        (run-with context (current-time context) (+ a d s h r)))))
+
+(defn play-chord! [env freqs]
+  (let [[a d s h r] env]
+    (doseq [freq freqs]
+      (-> (play-note-handler [a d s h r] freq)
+          (connect-> destination)
+          (run-with context (current-time context) (+ a d s h r)))))  )
 
 
 
-                                        ;(map dings [365.256363004 200 2000 3400])
+;; (tester2 [0 0 2 0 1] 300.32452)
+;; (tester2 [1 5 1 1 1] 440)
+
+(play-chord! [0 1 0 1 0] [440 400 500 1200])

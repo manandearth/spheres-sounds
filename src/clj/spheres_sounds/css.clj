@@ -74,7 +74,7 @@
                   :cursor "pointer"}
    [:&:hover {:fill "#f2f"}]]
 
-  [(s/+ :text.spheres:hover :circle.earth) {:fill "#fff"}]
+  ;[(s/+ :text.spheres:hover :circle.earth) {:fill "#fff"}]
 
   [:text.spheres.visible {:font-family "Share Tech Mono, monospace"
                  :font-size "1rem"
@@ -85,17 +85,42 @@
 
   [:text#graph
    {:font-family "Share Tech Mono, monospace"
-                 :font-size "1rem"
-                  :fill "#44a"
-                  :text-shadow "0.1px 0.1px #bbb"
-                  :cursor "pointer"}
-   [:&:hover {:fill "#f2f"}]]
+    :font-size "1rem"
+    :fill "#44a"
+    :text-shadow "0.1px 0.1px #bbb"
+    :cursor "pointer"}]
 
 
-  [:circle#graph
-   {:fill "#bbb"}
-   [:&:hover {:fill "#a8a"}]]
   
+  [:circle#graph
+   {:fill "#bbb"
+    :cursor "pointer"}
+   [:&:hover {:fill "#a8a"}]]
+
+  [(s/+ :circle#graph:hover :.tooltip) {
+                                           ;;:opacity 1
+                                           :display "inline"}]
+
+
+  [(s/+ :text#graph:hover :.tooltip) {
+                                           ;;:opacity 1
+                                           :display "inline"}]
+
+  [:g.tooltip
+   {:cursor "pointer"
+    :display "none"}
+   ]
+
+
+  [:text.tooltip
+   {:font-family "Share Tech Mono, monospace"
+   :font-size "1rem"
+   :fill "#111"
+   :text-shadow "0.1px 0.1px #bbb"
+    :cursor "pointer"
+    }
+   ]
+
   [:.slider {
              :display "inline-block"
              :width "500px"
