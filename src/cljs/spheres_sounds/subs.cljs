@@ -75,20 +75,66 @@
    (remove (set non-numeric-keys) (keys (first spheres)))))
 
 (reg-sub
- ::freq-rate
+ ::global
+ (fn [db]
+   (:global db)))
+
+(reg-sub
+ ::freq-range
+ (fn [db]
+   (get db :freq-range)))
+
+
+;;make this a set-freq-rate! and add a :freq-rate to db
+(reg-sub
+ ::calc-freq-rate
  :<- [::spheres]
+ :<- [::sorted-spheres]
  :<- [::selected-attr]
- (fn [[spheres attr] _]
-   (let [high-point (apply max (map attr spheres))
-         low-point (apply min (map attr spheres))
-         freq-range 11970]
-     (/ (- high-point low-point) freq-range)) ;the freq-range is what's audiable in hz.
+ :<- [::freq-range]
+ :<- [::global]
+ (fn [[spheres sorted-spheres attr freq-range global] _]
+   (if global
+     (let [high-point (apply max (map attr spheres))
+           low-point (apply min (map attr spheres))
+           range (- (:max freq-range) (:min freq-range))]
+       (/ (- high-point low-point) range));the freq-range is what's audiable in hz.
+     (let [high-point (apply max (map attr sorted-spheres))
+           low-point (apply min (map attr sorted-spheres))
+           range (- (:max freq-range) (:min freq-range))]
+       (/ (- high-point low-point) range))) 
    ))
+
+(subscribe [::freq-rate])
+
+(reg-sub
+ ::freq-rate
+ (fn [db]
+   (get db :freq-rate)))
+
+                                        
+
+;;(subscribe [::freq-rate])
+
+;;TEST CASES:
+
+;; (let [selected-attr (subscribe [::selected-attr])
+;;       sys-selected (subscribe [::selected-system])
+;;       spheres (subscribed [::sorted-spheres])]
+;;   )
+
+
+;; (subscribe [::freq-rate])
+;; (js/parseFloat (:min @(subscribe [::freq-range])))
+
+;; (subscribe [::sorted-spheres])
+;; (subscribe [::spheres])
 
 (reg-sub
  ::envelope
  (fn [db]
    (get db :envelope)))
+
 
 
 ;(subscribe [::freq-rate])

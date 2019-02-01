@@ -89,8 +89,7 @@
 
 (defn earth []
   [:g {:title "Hello-world!"}
-      [:circle.sphere.earth {:cx (+ x-position 240) :cy 50 :r 12 :filter "url(#f2)"
-                             :on-click #(js/alert "earth")}]
+      [:circle.sphere.earth {:cx (+ x-position 240) :cy 50 :r 12 :filter "url(#f2)"}]
       [:ellipse {:cx (+ x-position 250) :cy 45 :rx 10 :ry 7 :filter "url(#f2)" :mask "url(#m-earth)" :style {:fill "#3a4"}}]
       [:ellipse {:cx (+ x-position 230) :cy 55 :rx 10 :ry 7 :filter "url(#f2)" :mask "url(#m-earth)" :style {:fill "#3a4"}}]])
 
@@ -315,7 +314,87 @@
          ]]
   )
 
+(defn global-button []
+  [:svg 
+   (let [global @(subscribe [::subs/global])
+         freq-rate @(subscribe [::subs/freq-rate])
+         calc-freq-rate (subscribe [::subs/calc-freq-rate])]
+     (if global
+       [:g {:on-click #(do
+                         (dispatch [:toggle-global])
+                         (dispatch [:update-freq-rate! @calc-freq-rate]))
+                         }
+        [:rect.selected {:x 120 :y 30
+                            :height 40
+                            :width 80
+                         }]
+        [:text.selected {:x 120 :y 60
+                            :height 40
+                            :width 50} "Global"]]
+       [:g {:on-click #(do (dispatch [:toggle-global])
+                           (dispatch [:update-freq-rate! @calc-freq-rate]))}
+        [:rect.system {:x 120 :y 30
+                          :height 40
+                          :width 80
+                       }]
+        [:text.system {:x 120 :y 60
+                            :height 40
+                            :width 50} "Local"]]))]
+  
+  )
 
+;; (def temp-freq-range (r/atom {:min 30 :max 12000}))
+
+;; (swap! temp-freq-range assoc :min 49)
+;; @temp-freq-range
+
+(defn sliders []
+  (let 
+      [
+       ;; frequency-range (r/atom {:min "30" :max "12000"})
+       freq-range (subscribe [::subs/freq-range])
+       calc-freq-rate (subscribe [::subs/calc-freq-rate])
+       freq-rate (subscribe [::subs/freq-rate])]
+    [:div.container 
+     {:style {:display "inline-block"}}
+     [:div.column  {:style {:transform "translate(25px, 0px)"}}
+      [:input {:type "range" :id "min" :name "low-bar"
+               :min "30" :max (:max @freq-range)  :step "1" :value (:min @freq-range)
+               :on-change #(do
+                             (dispatch [:update-freq-range! :min (js/parseFloat (.-target.value %))])
+                                        ;(swap! temp-freq-range assoc :min (.-target.value %))
+                             (dispatch [:update-freq-rate! @calc-freq-rate]))}]
+      [:h3  (str "min : " (:min @freq-range))]
+      ]
+     
+     [:div.column {:style {:transform "translate(25px, 0px)"}}
+      [:input {:type "range" :id "max" :name "high-bar"
+               :min (:min @freq-range) :max "12000"  :step "1"
+               :value (:max @freq-range)
+               :on-change #(do
+                             (dispatch [:update-freq-range! :max (js/parseFloat (.-target.value %))])
+                                        ;(swap! temp-freq-range assoc :max (.-target.value %))
+                             (dispatch [:update-freq-rate! @calc-freq-rate]))
+                             }]
+      [:h3  (str "max : " (:max @freq-range))]
+      ]
+     ]))
+
+;; (:max @(subscribe [::subs/freq-range]))
+;;:on-change (fn [e] (swap! freq-range assoc :max (.-target.value e)))
+
+;;@temp-freq-range
+
+
+
+
+(defn ranges []
+  [:div
+   ;; [:svg
+   ;;  {:height 100 :width 1100}
+   ;;  [:rect.system {:x 100 :width 1000 :height 96}]]
+  [global-button]
+   [sliders]])
 
 (defn graph-tooltip
   "helper function defines tooltip text"
@@ -360,8 +439,6 @@
 
 
 
-
-
 (defn graph []
   [:svg {:width 1800 :x -200 :y 150}
    (let [spheres (subscribe [::subs/sorted-spheres])
@@ -375,15 +452,17 @@
          ;;for the sound:
          ]
      [:g
-      {:on-key-press #(when (= (.-which %) 97)
-                                  (js/alert "pressed 'a'"))}
+      ;; {:on-key-press #(when (= (.-which %) 97)
+                                  ;; (js/alert "pressed 'a'"))}
       (for [body @spheres
                :when (:vis body) ;toggle visability
                ]
            (let [trans (+ 350 (/ (selected-attr body) fit))
                  size (.log js/Math (:volume body))
                  freq-rate (subscribe [::subs/freq-rate])
-                 adjustment 30
+                 freq-range @(subscribe [::subs/freq-range])
+                 adjustment (js/parseFloat (:min freq-range))
+                 global @(subscribe [::subs/global])
                  ]
              [:g {:key (str "g-" (:name body))
                                         ;:data-tooltip "boo"
@@ -397,14 +476,16 @@
                 :key (str "circle-" (:name body))
                 }]
                                         ;[tooltip2 xtrans ytrans x-select y-select body]
+[graph-tooltip trans selected-attr body]
+              
+              
+              
               [:text#graph
                { :x trans
                 :y 100
                 :font-size 10
                 :fill "#888888"
                 :key (str "text-" (:name body))} (:name body)]
-              [graph-tooltip trans selected-attr body]
-              
               ]))])])
 
 
@@ -426,9 +507,10 @@
   [:svg
    (let [toggled-on (subscribe [::subs/toggled-attr])
          freq-rate (subscribe [::subs/freq-rate])
-         adjustment 30 ;30hz is the lowest audiable so the range is increased by that much for 0 to be audiable.
+         adjustment (:min @(subscribe [::subs/freq-range])) ;30hz is the lowest audiable so the range is increased by that much for 0 to be audiable.
          toggled-reduced  (vec (map #(+ adjustment (/ % @freq-rate)) @toggled-on))
-         adshr @(subscribe [::subs/envelope])]
+         adshr @(subscribe [::subs/envelope])
+         global (subscribe [::subs/global])]
      
      [:g {:key "chord"
           :cursor "pointer"
@@ -452,17 +534,22 @@
   [:svg
    [:rect.system {:x 110 :y 50 :width 980 :height 50}]
    (let [attributes (subscribe [::subs/attributes])
-         selected-attr @(subscribe [::subs/selected-attr])]
+         selected-attr @(subscribe [::subs/selected-attr])
+         calc-freq-rate (subscribe [::subs/calc-freq-rate])
+         freq-rate @(subscribe [::subs/freq-rate])]
      (for [attr @attributes]
        (if (= attr selected-attr)
-         [:g {:cursor "pointer" :on-click #(dispatch [:select-attribute attr])}
+         [:g {:cursor "pointer" :on-click #(do
+                                             (dispatch [:select-attribute attr])
+                                             (dispatch [:update-freq-rate! @calc-freq-rate]))}
           [:rect.selected {:x (* 140 (inc (.indexOf @attributes attr)))  :y 60
                            :height 30 :width 100
                            }]
           [:text.spheres.visible {:x (* 140 (inc (.indexOf @attributes attr)))  :y 80
                            :height 30 :width 100
                            } attr]]
-         [:g {:cursor "pointer" :on-click #(dispatch [:select-attribute attr])}
+         [:g {:cursor "pointer" :on-click #(do (dispatch [:select-attribute attr])
+                                               (dispatch [:update-freq-rate! @calc-freq-rate]))}
           [:rect.system  {:x (* 140 (inc (.indexOf @attributes attr)))  :y 60
                            :height 30 :width 100
                            }]
@@ -505,13 +592,13 @@
      [:text.system {:y 80 :x 520} "-A-D-S-H-R-"]]
     ]
    [:div
-    [:h3 "input"]]
+    [:h3 "envelope (temporarily specless) enter 5 integers (i.e. 01010)"]]
    ;[volume-slider]
    ])
 
 
 (defn envelope-input []
-  (let [envelope (r/atom "boo!")
+  (let [envelope (r/atom "11111")
         env @(subscribe [::subs/envelope])]
     (fn []
       [:input {:type "text"
@@ -548,17 +635,17 @@
 
 (defn main-panel []
   (let [name (subscribe [::subs/name])
-          spheres (subscribe [::subs/spheres])
-        ]
+          spheres (subscribe [::subs/spheres])]
 
-    [:div {:on-key-down (fn [e] (when (= (.. e -which (getElementById "boo")) 13)
-                                         (js/alert "hoo!")))
-      :on-change (fn [e] (swap! output-gain assoc :gain (.-target.value e)))
-           :title "hey"
-           :id "boo"
-           :style {:width 1150
-                   :height 1000
-                   :position "absolute"}}
+    [:div
+     ;; {:on-key-down (fn [e] (when (= (.. e -which (getElementById "boo")) 13)
+     ;;                                     (js/alert "hoo!")))
+     ;;  :on-change (fn [e] (swap! output-gain assoc :gain (.-target.value e)))
+     ;;       :title "hey"
+     ;;       :id "boo"
+     ;;       :style {:width 1150
+     ;;               :height 1000
+     ;;               :position "absolute"}}
      [:div.guide
       [:h1  @name "/interplanetary instrument"]
       [:h3 "Some of the bodies in our solar system are gigantic and they travel in greater speed than anything on this planet, yet they are silent. The following is an interactive exploration of the relation between some of those bodies through sound."]
@@ -570,15 +657,9 @@
      [stage]
      [:h2.guide "Choose the attribute that will be used for frequency:"]
      [:h3.guide {:title "you will need headphones or some reasonable speakers as the tones tend to mostly be right at the edges.."} "This range will be set globally -> 30Hz the lowest and 12KHz the highest"]
+     [ranges]
      [player]
      [controls]
      [envelope-input]
      [footer]
      ]))
-
-
-;(def now (js/Date.))
-
-;
-;; (let [me #js {:fname "Adam" :lname "Gefen"}]
-;;   (.-lname me))

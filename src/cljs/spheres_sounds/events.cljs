@@ -1,6 +1,6 @@
 (ns spheres-sounds.events
   (:require
-   [re-frame.core :refer [reg-event-db reg-event-fx]]
+   [re-frame.core :refer [reg-event-db reg-event-fx subscribe]]
    [spheres-sounds.db :as db]
    [spheres-sounds.audio :as audio]
    ))
@@ -37,6 +37,11 @@
  (fn [db [_ sphere]]
     (assoc-in db [:spheres sphere :vis] true)))
 
+(reg-event-db
+ :toggle-global
+ (fn [db _]
+   (update db :global not))) ;toggles true/false hypothetically
+
 (reg-event-fx
  :audio
  (fn [cofx [_ adshr freq]]
@@ -55,35 +60,13 @@
  (fn [db [_ v]]
    (assoc db :envelope v)))
 
+(reg-event-db
+ :update-freq-range!
+ (fn [db [_ k v]]
+   (assoc-in db [:freq-range k] v)))
 
+(reg-event-db
+ :update-freq-rate!
+ (fn [db [_ rate]] 
+   (assoc db :freq-rate rate)))
 
-
-;; (reg-event-fx
-;;  :apo-sound
-;;  (fn [cofx [_ ]])
-;;  )
-
-;; (reg-event-db
-;;  :visible
-;;  (fn [db [_ k]]
-;;    (assoc-in db [:spheres k :vis] false)))
-
-;; (reg-event-db
-;;  :invisible
-;;  (fn [db [_ k]]
-;;    (assoc-in db [:spheres k :vis] true)))
-
-;; (reg-event-db
-;;  :x-selected
-;;  (fn [db [_ attr]]
-;;    (assoc db :x-selected attr)))
-
-;; (reg-event-db
-;;  :y-selected
-;;  (fn [db [_ attr]]
-;;    (assoc db :y-selected attr)))
-
-;; (reg-event-db
-;;  :sys-selected
-;;  (fn [db [_ sys]]
-;;    (assoc db :sys-selected sys)))

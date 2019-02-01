@@ -186,3 +186,15 @@ p {
   color: #a2a;
   text-shadow: 0.1px 0.1px #bbb;
 }
+
+.container {
+  overflow: hidden;
+}
+
+.column {
+  float: left;
+  margin: 60px;
+  background-color: none;
+  padding-bottom: 100%;
+  margin-bottom: -100%;
+}

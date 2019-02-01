@@ -137,9 +137,14 @@
                   }]
 
 
+  [:.container {:overflow "hidden"}]
 
-
-  )
-
-
+  [:.column {:float "left"
+             :margin "60px"
+             :background-color "none"
+             :padding-bottom "100%"
+             :margin-bottom "-100%"
+             }
+]
+)
 

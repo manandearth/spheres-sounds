@@ -13,14 +13,15 @@
    :systems ["sun" "earth" "mars" "jupiter" "saturn" "uranus" "neptune" "pluto"]
    :selected-system "Sun"
    :selected-attr :apoapsis
-   :envelope [1 1 1 1 1]})
+   :envelope [1 1 1 1 1]
+   :freq-range {:min 30 :max 12000}
+   :global false
+   :freq-rate 1})
 
-(:envelope default-db)
+;(:envelope default-db)
 ;;(:spheres default-db)
 
-
-
-  (def spheres "~/clojure-projects/spheres/spheres-sounds/resources/public/spheres.edn")
+(def spheres "~/clojure-projects/spheres/spheres-sounds/resources/public/spheres.edn")
 ;(edn/read spheres)
 ;; (cljs.tools.reader.edn/read spheres)
 ;; (cljs.reader/read spheres)
