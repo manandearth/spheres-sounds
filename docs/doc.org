@@ -134,6 +134,78 @@ If you have questions, I can usually be found hanging out in the clojurians #rea
 - [ ] how to manipulate the graph?
 
 input from user [adshr] 
+
+*** Sliders for range of frequency - Major important for instrument usefulness
+
+**** VIEWS
+*sliders* element, It takes frequency range and rate
+ that is something like this psuedo example:
+
+#+BEGIN_SRC clojure
+(defn interpolate [x]
+  (let [selected-attr @(subscribe [::subs/selected-attr])
+        spheres (subscribe [::subs/spheres])
+        sorted-spheres (subscribe [::subs/sorted-spheres])
+        global @(subscribe [::subs/global])
+        y-range (subscribe [::subs/freq-range])
+        y-1 (:min @y-range)
+        y-2 (:max @y-range)
+        x-1-global (apply min (map selected-attr @spheres))
+        x-1-local (apply min (map selected-attr @sorted-spheres))
+        x-2-global (apply max (map selected-attr @spheres))
+        x-2-local (apply max (map selected-attr @sorted-spheres))]
+    (if global
+      (+ y-1 (* (- y-2 y-1) (/ (- x x-1-global) (- x-2-global x-1-global))))
+      (+ y-1 (* (- y-2 y-1) (/ (- x x-1-local) (- x-2-local x-1-local)))))
+    ))
+
+#+END_SRC
+
+I need to minimize the views so all the logic happens in
+/events/ and /cofx/.
+
+**** SUBS
+At the moment all the flow happens in the /calc-freq-rate/:
+#+BEGIN_SRC clojure
+(reg-sub
+ ::calc-freq-rate
+ :<- [::spheres]
+ :<- [::sorted-spheres]
+ :<- [::global]
+ :<- [::selected-attr]
+ :<- [::freq-range]
+ (fn [[spheres sorted-spheres global attr freq-range] _]
+   (if global
+     (let [high-point (apply max (map attr spheres))
+           low-point (apply min (map attr spheres))
+           range (- (:max freq-range) (:min freq-range))]
+       (/ (- high-point low-point) range));the freq-range is what's audiable in hz.
+
+     (let [high-point (apply max (map attr sorted-spheres))
+           low-point (apply min (map attr sorted-spheres))
+           range (- (:max freq-range) (:min freq-range))]
+       (/ (- high-point low-point) range))) 
+   ))
+
+#+END_SRC
+
+The problem is that these dependencies doesn't happen
+necessarily in the right order..  The solution will be
+in dispatching an event that calls :dispatch on coefx
+that I have to define.
+
+
+**** EVENTS
+
+At the moment the dispatch is simple. I need to extend
+and create coefx for what I rely on in several
+dispatches.  The idea is that the db has to update
+entirely when a parameter is changed before it executes
+the /:audio/ event.
+
+For debugging I should add the frequency's value to the
+tooltip displayed with every /:audio/ dispatch.
+
 ** transit-cljs
 
 *** TODO converting to edn or json and back
@@ -147,14 +219,14 @@ glowing spheres
 
 dark bg, retro glow.
 
-*** TODO some sort of scratch board where hovering will change the sounds.
+*** DONE some sort of scratch board where hovering will change the sounds.
 
 perhaps the spheres themselves activated by hover or
 some design of a visual instrument
 
 *** TODO the green outline light on spheres in the systems-box should stay on for a selected system. 
 
-*** TODO possible do it all a bit more concise so it will fit on the screen 
+*** DONE possible do it all a bit more concise so it will fit on the screen 
 
 less padding on the instruction (:.guide)
 
@@ -169,7 +241,7 @@ circles at the moment
 generally there's an hirarchy of systems -> a system ->
 sphere -> its attributes.
 
-*** TODO add the synth's attributes to db
+*** DONE add the synth's attributes to db
 
 this way it could be accessed from the app by subscriptions.
 - I could have a slider for the gain.

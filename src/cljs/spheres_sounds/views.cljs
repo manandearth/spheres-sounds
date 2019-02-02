@@ -277,7 +277,7 @@
            apo-max (apply max (rest apo-list))
            apo-min (apply min (rest apo-list))
            apo-average  (/ (+ apo-max apo-min) 2)]
-  (for [sphere (rest @spheres)]
+  (for [sphere (rest @spheres)] ;;TODO need better representation for the satelites... (first not uniform)
     [:circle.satelite {:key (str "circle " sphere)
                        :cx (+ 20 (/ (.log js/Math (:apoapsis sphere)) (/ apo-max 900)))
                        :cy 50
@@ -320,10 +320,8 @@
          freq-rate @(subscribe [::subs/freq-rate])
          calc-freq-rate (subscribe [::subs/calc-freq-rate])]
      (if global
-       [:g {:on-click #(do
-                         (dispatch [:toggle-global])
-                         (dispatch [:update-freq-rate! @calc-freq-rate]))
-                         }
+       [:g {:on-click #(dispatch [:toggle-global])  
+            }
         [:rect.selected {:x 120 :y 30
                             :height 40
                             :width 80
@@ -331,8 +329,7 @@
         [:text.selected {:x 120 :y 60
                             :height 40
                             :width 50} "Global"]]
-       [:g {:on-click #(do (dispatch [:toggle-global])
-                           (dispatch [:update-freq-rate! @calc-freq-rate]))}
+       [:g {:on-click #(dispatch [:toggle-global])}
         [:rect.system {:x 120 :y 30
                           :height 40
                           :width 80
@@ -399,29 +396,43 @@
 (defn graph-tooltip
   "helper function defines tooltip text"
   [trans selected-attr body]
-  [:g.tooltip
-   [:rect {:x 700
-           :y 0
-           :width 200
-           :height 20
-           :opacity 0.4
-           :rx 5
-           :fill "#ccc"
-           }
-    ]
-   [:text.tooltip {:x 700
-                   ;(+ 20 trans)
-                   :y 15}
-    (selected-attr body)
-    (case selected-attr
-      :apoapsis " km"
-      :periapsis " km"
-      :circumference " km"
-      :mass " kg"
-      :volume " km³"
-      :orbital_period " days"
-      :surface_area " km²" "")]
-   ]
+  (let [freq-rate (subscribe [::subs/freq-rate])
+        adjustment (:min @(subscribe [::subs/freq-range]))] 
+    [:g.tooltip
+     [:rect {:x 700
+             :y 0
+             :width 200
+             :height 20
+             :opacity 0.4
+             :rx 5
+             :fill "#ccc"
+             }
+      ]
+     [:text.tooltip {:x 700
+                                        ;(+ 20 trans)
+                     :y 15}
+      (selected-attr body)
+      (case selected-attr
+        :apoapsis " km"
+        :periapsis " km"
+        :circumference " km"
+        :mass " kg"
+        :volume " km³"
+        :orbital_period " days"
+        :surface_area " km²" "")]
+
+     [:rect {:x 700
+             :y 20
+             :width 200
+             :height 20
+             :opacity 0.4
+             :rx 5
+             :fill "#ccc"
+             }
+      ]
+     [:text.tooltip {:x 700
+                     :y 35}
+      (str (+ adjustment (/ (selected-attr body) @freq-rate)) " Hz")]])
   )
 
 
@@ -439,29 +450,49 @@
 
 
 
+(defn interpolate [x]
+  (let [selected-attr @(subscribe [::subs/selected-attr])
+        spheres (subscribe [::subs/spheres])
+        sorted-spheres (subscribe [::subs/sorted-spheres])
+        global @(subscribe [::subs/global])
+        y-range (subscribe [::subs/freq-range])
+        y-1 (:min @y-range)
+        y-2 (:max @y-range)
+        x-1-global (apply min (map selected-attr @spheres))
+        x-1-local (apply min (map selected-attr @sorted-spheres))
+        x-2-global (apply max (map selected-attr @spheres))
+        x-2-local (apply max (map selected-attr @sorted-spheres))]
+    (if global
+      (+ y-1 (* (- y-2 y-1) (/ (- x x-1-global) (- x-2-global x-1-global))))
+      (+ y-1 (* (- y-2 y-1) (/ (- x x-1-local) (- x-2-local x-1-local)))))
+    ))
+(interpolate 365)
+
+
+
+
+
 (defn graph []
   [:svg {:width 1800 :x -200 :y 150}
    (let [spheres (subscribe [::subs/sorted-spheres])
          selected-attr @(subscribe [::subs/selected-attr])
          sys-selected @(subscribe [::subs/selected-system])
          adshr @(subscribe [::subs/envelope])
-         ;;for the circles:
+         ;;visual:
          min-val (apply min (map selected-attr (filter #(= true (:vis %)) @spheres)))
          max-val (apply max (map selected-attr (filter #(= true (:vis %)) @spheres)))
          fit  (/ max-val 900)
-         ;;for the sound:
+         
          ]
      [:g
-      ;; {:on-key-press #(when (= (.-which %) 97)
-                                  ;; (js/alert "pressed 'a'"))}
       (for [body @spheres
                :when (:vis body) ;toggle visability
                ]
-           (let [trans (+ 350 (/ (selected-attr body) fit))
-                 size (.log js/Math (:volume body))
-                 freq-rate (subscribe [::subs/freq-rate])
+           (let [trans (+ 350 (/ (selected-attr body) fit)) ;visual
+                 size (.log js/Math (:volume body)) ;visual
+                 freq-rate (subscribe [::subs/calc-freq-rate])
                  freq-range @(subscribe [::subs/freq-range])
-                 adjustment (js/parseFloat (:min freq-range))
+                 adjustment  (:min freq-range)
                  global @(subscribe [::subs/global])
                  ]
              [:g {:key (str "g-" (:name body))
@@ -536,12 +567,11 @@
    (let [attributes (subscribe [::subs/attributes])
          selected-attr @(subscribe [::subs/selected-attr])
          calc-freq-rate (subscribe [::subs/calc-freq-rate])
-         freq-rate @(subscribe [::subs/freq-rate])]
+         freq-rate (subscribe [::subs/freq-rate])]
      (for [attr @attributes]
        (if (= attr selected-attr)
-         [:g {:cursor "pointer" :on-click #(do
-                                             (dispatch [:select-attribute attr])
-                                             (dispatch [:update-freq-rate! @calc-freq-rate]))}
+         [:g {:cursor "pointer"
+              }
           [:rect.selected {:x (* 140 (inc (.indexOf @attributes attr)))  :y 60
                            :height 30 :width 100
                            }]
@@ -598,7 +628,7 @@
 
 
 (defn envelope-input []
-  (let [envelope (r/atom "11111")
+  (let [envelope (r/atom "01010")
         env @(subscribe [::subs/envelope])]
     (fn []
       [:input {:type "text"
@@ -656,7 +686,7 @@
      [:h2.guide "Toggle spheres on or off:"]
      [stage]
      [:h2.guide "Choose the attribute that will be used for frequency:"]
-     [:h3.guide {:title "you will need headphones or some reasonable speakers as the tones tend to mostly be right at the edges.."} "This range will be set globally -> 30Hz the lowest and 12KHz the highest"]
+     [:h3.guide {:title "you will need headphones or some reasonable speakers as the tones tend to mostly be right at the edges.."} "Toggle" [:span {:style {:color "sandybrown"}} " <Global/Local>"] " and set the range -> 30Hz the lowest and 12KHz the highest"]
      [ranges]
      [player]
      [controls]

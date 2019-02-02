@@ -475,3 +475,5 @@
   )
 
 
+;; (let [apo (map :apoapsis (vals spheres-map))]
+;;   (/ (- (apply max apo) (apply min apo)) 11970))604168755.2213868

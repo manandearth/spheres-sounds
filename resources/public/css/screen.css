@@ -143,6 +143,7 @@ text#graph {
 
 circle#graph {
   fill: #bbb;
+  opacity: 0.5;
   cursor: pointer;
 }
 

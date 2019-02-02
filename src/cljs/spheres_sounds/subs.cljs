@@ -1,6 +1,6 @@
 (ns spheres-sounds.subs
   (:require
-   [re-frame.core :refer [reg-sub subscribe]]))
+   [re-frame.core :refer [reg-sub subscribe reg-fx]]))
 
 (reg-sub
  ::name
@@ -16,6 +16,7 @@
  ::systems
  (fn [db]
    (:systems db)))
+
 
 (reg-sub
  ::selected-system
@@ -51,7 +52,9 @@
  :<- [::selected-system]
  (fn [[spheres parent] _]
    (sort-by :apoapsis (concat
-                       (list (assoc (first (filter #(= parent (:name %)) spheres)) :periapsis 0 :apoapsis 0))
+
+                       (list (assoc (first (filter #(= parent (:name %)) spheres)) :periapsis (:self-bias parent) :apoapsis (:self-bias parent)))
+
                        (filter #(= parent (:parent %))  spheres)))))
 
 (reg-sub
@@ -85,44 +88,41 @@
    (get db :freq-range)))
 
 
-;;make this a set-freq-rate! and add a :freq-rate to db
+;;DONE make this a set-freq-rate! and add a :freq-rate to db
 (reg-sub
  ::calc-freq-rate
  :<- [::spheres]
  :<- [::sorted-spheres]
+ :<- [::global]
  :<- [::selected-attr]
  :<- [::freq-range]
- :<- [::global]
- (fn [[spheres sorted-spheres attr freq-range global] _]
+ (fn [[spheres sorted-spheres global attr freq-range] _]
    (if global
      (let [high-point (apply max (map attr spheres))
            low-point (apply min (map attr spheres))
            range (- (:max freq-range) (:min freq-range))]
        (/ (- high-point low-point) range));the freq-range is what's audiable in hz.
+
      (let [high-point (apply max (map attr sorted-spheres))
            low-point (apply min (map attr sorted-spheres))
            range (- (:max freq-range) (:min freq-range))]
        (/ (- high-point low-point) range))) 
    ))
 
-(subscribe [::freq-rate])
+
+
+
+;; (subscribe [::freq-rate])
 
 (reg-sub
  ::freq-rate
  (fn [db]
    (get db :freq-rate)))
 
+(reg-fx
+ :new-freq-rate
+ (fn []))
                                         
-
-;;(subscribe [::freq-rate])
-
-;;TEST CASES:
-
-;; (let [selected-attr (subscribe [::selected-attr])
-;;       sys-selected (subscribe [::selected-system])
-;;       spheres (subscribed [::sorted-spheres])]
-;;   )
-
 
 ;; (subscribe [::freq-rate])
 ;; (js/parseFloat (:min @(subscribe [::freq-range])))

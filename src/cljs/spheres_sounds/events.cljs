@@ -1,8 +1,9 @@
 (ns spheres-sounds.events
   (:require
-   [re-frame.core :refer [reg-event-db reg-event-fx subscribe]]
+   [re-frame.core :refer [reg-event-db reg-event-fx subscribe debug]]
    [spheres-sounds.db :as db]
    [spheres-sounds.audio :as audio]
+   
    ))
 
 (reg-event-db
@@ -25,10 +26,16 @@
  (fn [db [_ sphere]]
    (assoc-in db [:spheres sphere :vis] false)))
 
-(reg-event-db
+;; (reg-event-db
+;;  :select-attribute
+;;  (fn [db [_ attr]]
+;;    (assoc db :selected-attr attr)))
+
+(reg-event-fx
  :select-attribute
- (fn [db [_ attr]]
-   (assoc db :selected-attr attr)))
+ (fn [cofx [_ attr]]
+   {:db (assoc (:db cofx) :selected-attr attr)
+    }))
 
 
 ;;TODO Need to have this toggling (assoc a sphere to vis or dissoc)
@@ -65,8 +72,8 @@
  (fn [db [_ k v]]
    (assoc-in db [:freq-range k] v)))
 
-(reg-event-db
- :update-freq-rate!
+(reg-event-db 
+ :update-freq-rate! [debug]
  (fn [db [_ rate]] 
    (assoc db :freq-rate rate)))
 

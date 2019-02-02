@@ -94,6 +94,7 @@
   
   [:circle#graph
    {:fill "#bbb"
+    :opacity 0.5
     :cursor "pointer"}
    [:&:hover {:fill "#a8a"}]]
 
