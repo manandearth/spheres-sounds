@@ -466,7 +466,7 @@
       (+ y-1 (* (- y-2 y-1) (/ (- x x-1-global) (- x-2-global x-1-global))))
       (+ y-1 (* (- y-2 y-1) (/ (- x x-1-local) (- x-2-local x-1-local)))))
     ))
-(interpolate 365)
+;; (interpolate 365)
 
 
 
