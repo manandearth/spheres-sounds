@@ -4,10 +4,21 @@
    [spheres-sounds.subs :as subs]
    [spheres-sounds.audio :as audio]
    [reagent.core :as r]
-   ))
+   [cljs.spec.alpha :as s]
+   [cljs.spec.test.alpha :as stest]
+   [cljs-bach.synthesis :refer [audio-context]]
+   [re-frame.core :as re-frame]
+   [re-pressed.core :as rp]))
 
-(defonce context (cljs-bach.synthesis/audio-context))
 
+;;cljs-bach context
+(defonce context audio-context)
+
+
+;;keyboard listener:
+(re-frame/dispatch-sync [::rp/add-keyboard-event-listener "keydown"])
+
+;;WIP position 
 (def x-position 100)
 
 
@@ -327,8 +338,8 @@
                             :width 80
                          }]
         [:text.selected {:x 120 :y 60
-                            :height 40
-                            :width 50} "Global"]]
+                         :height 40
+                         :width 50} "Global"]]
        [:g {:on-click #(dispatch [:toggle-global])}
         [:rect.system {:x 120 :y 30
                           :height 40
@@ -336,7 +347,11 @@
                        }]
         [:text.system {:x 120 :y 60
                             :height 40
-                            :width 50} "Local"]]))]
+                       :width 50} "Local"]]))
+   [:text.selected {:x 145 :y 90
+                         :height 40
+                         :width 50
+                    :style {:font-size "1rem"}} "<\\>"]]
   
   )
 
@@ -451,6 +466,10 @@
 
 
 (defn interpolate [x]
+  "We have two ranges, the selected frequency range and the range of value 
+of selected attribute at a given state,which is filtered to its system or
+remains global (:global db). x is the a value of an attribute, this function 
+returns the frequency"
   (let [selected-attr @(subscribe [::subs/selected-attr])
         spheres (subscribe [::subs/spheres])
         sorted-spheres (subscribe [::subs/sorted-spheres])
@@ -468,6 +487,20 @@
     ))
 ;; (interpolate 365)
 
+;;look at spec, son't know where to place it.
+
+(s/fdef interpolate :args (s/cat :x number?))
+(stest/instrument `interpolate)
+
+;; (interpolate "e")
+;; (interpolate 2)
+
+;;example spec:
+;; (defn same-number [x]
+;;   x)
+;; (s/fdef same-number :args (s/cat :x number?))
+;; (stest/instrument `same-number)
+;; (same-number 2)
 
 
 
@@ -660,6 +693,64 @@
     "Made by"
     [:a {:href "https://github.com/manandearth"} " Adam Gefen, "]
     "A clojure developer, an open source under the " [:a {:href "https://opensource.org/licenses/Artistic-2.0"} "Apache Artistic License 2.0"]]])
+
+
+
+
+;;;;;KEY PRESSES;;;;;;;;;
+(dispatch
+ [::rp/set-keydown-rules
+  {;; takes a collection of events followed by key combos that can trigger the event
+   :event-keys [
+                ;; Event & key combos 1
+                [;; this event
+                 [:toggle-global]
+                 ;; will be triggered if
+                 ;; enter
+                 [{:keyCode 220}]
+                 ;; or delete
+                 [{:keyCode 220
+                   :shiftKey true}]]
+                ;; is pressed
+
+                ;; Event & key combos 2
+                [;; this event
+                 [:toggle-global]
+                 ;; will be triggered if
+                 ;; tab is pressed twice in a row
+                 [{:keyCode 9} {:keyCode 9}]]]
+
+   ;; takes a collection of key combos that, if pressed, will clear
+   ;; the recorded keys
+   :clear-keys
+   ;; will clear the previously recorded keys if
+   [;; escape
+    [{:keyCode 27}]
+    ;; or Ctrl+g
+    [{:keyCode   71
+      :ctrlKey true}]]
+   ;; is pressed
+
+   ;; takes a collection of keys that will always be recorded
+   ;; (regardless if the user is typing in an input, select, or textarea)
+   :always-listen-keys
+   ;; will always record if
+   [;; enter
+    {:keyCode 13}]
+   ;; is pressed
+
+   ;; takes a collection of keys that will prevent the default browser
+   ;; action when any of those keys are pressed
+   ;; (note: this is only available to keydown)
+   :prevent-default-keys
+   ;; will prevent the browser default action if
+   [;; Ctrl+g
+    {:keyCode   71
+     :ctrlKey true}]
+   ;; is pressed
+   }])
+
+
 
 
 

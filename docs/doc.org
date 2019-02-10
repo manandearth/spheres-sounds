@@ -123,6 +123,54 @@ https://github.com/gadfly361/re-pressed
 the author says:
 If you have questions, I can usually be found hanging out in the clojurians #reagent slack channel (my handle is @gadfly361).
 
+***** REPRESSED details:
+
+first setup - applying a key ("/")  to global/local toggle
+
+[[https://keycode.info/][keycode list]]
+
+a few useful ones are:
+
+| key   | code |
+|-------+------|
+| /     |  220 |
+| a     |   65 |
+| s     |   83 |
+| d     |   68 |
+| f     |   70 |
+| g     |   71 |
+| h     |   72 |
+| j     |   74 |
+| k     |   75 |
+| l     |   76 |
+| ;     |  186 |
+| <ret> |   13 |
+|       |      |
+
+need to setup once a listener:
+#+BEGIN_SRC clojure
+
+(re-frame/dispatch-sync [::rp/add-keyboard-event-listener "keydown"])
+
+#+END_SRC
+ 
+Then for example with the </> key dispatching the
+:toggle-global event (with and without <shift>,
+followed by a double <tab> to dispatch the same..
+
+#+BEGIN_SRC clojure
+(dispatch
+ [::rp/set-keydown-rules
+  :event-keys [[:toggle-global]
+               [{:keyCode 220}]
+               [{:keyCode 220
+                 :shiftKey true}]]
+  [:toggle-global]
+  [{:keyCode 9} {:keyCode 9}]]]
+#+END_SRC
+
+
+
 *** TODO make the gain slider do something...
 
 *** TODO add envelope [3/6]
