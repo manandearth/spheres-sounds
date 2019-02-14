@@ -169,6 +169,12 @@ followed by a double <tab> to dispatch the same..
   [{:keyCode 9} {:keyCode 9}]]]
 #+END_SRC
 
+***** TODO how to map the keys for spheres
+Need to find a way that not only we interactively
+map the home row keys to the active visible
+spheres by order from left to right, but also to
+show each clock by lighting the corresponding
+sphere in the [graph].
 
 
 *** TODO make the gain slider do something...
@@ -327,5 +333,129 @@ perhaps has to do with cofx? routing the side effect to somewhere..
 
 - auth -a `buddy` chapter on Lambda Island [[https://lambdaisland.com/episodes/buddy-authentication][here!]]
 - tests [[https://lambdaisland.com/episodes/introduction-clojure-testing][lambdaisland tests intro]] and [[https://lambdaisland.com/episodes/testing-clojurescript][lambdaisland cljs tests]] and [[https://lambdaisland.com/episodes/acceptance-testing-sparkledriver][also this]] and lastly [[https://lambdaisland.com/episodes/generative-testing-clojure-test-check][this.]]
- 
-  
+
+*** when moving to fullstack (from vemv discussion on Slack):
+vemv   [Feb 6th at 7:32 PM]
+anyone using clojurescript + CIDER + figwheel + one of [component, integrant]?
+
+I'm interested in the Component part, never tried such a setup. I suspect it could be more robust.
+
+does it work fine? any rough edges? I would imagine reconnection can be an issue as you `reset` your Component system (edited)
+30 replies
+
+vemv   [7 days ago]
+_Maybe_ resetting the sockets on every `reset` would be a recipe for disaster... so my Component could just not do that
+
+an useful thing that could be done on `reset` is clearing the cljs compiler cache and such... it can get unrecoverably corrupt as one switches Git branches
+
+andrea.crotti   [7 days ago]
+I use figwheel main cider and integrant
+
+andrea.crotti   [7 days ago]
+And to be fair I rarely restart anything integrant just brings the system up
+
+andrea.crotti   [7 days ago]
+But everything works pretty well anyway
+
+vemv   [7 days ago]
+is it a full-stack or frontend-only project?
+
+andrea.crotti   [7 days ago]
+full stack
+
+andrea.crotti   [7 days ago]
+you just need things like
+
+```(defmethod ig/init-key :server/figwheel [_ {:keys [build] :as opts}]
+  (log/info "Running figwheel build " build)
+  (figwheel/start {:mode :serve} build))```
+
+andrea.crotti   [7 days ago]
+and something like
+```(defmethod ig/init-key :server/jetty [_ {:keys [port host reload?]}]
+  (let [handler
+        (if reload?
+          (wrap-reload #'server/app-handler)
+          server/app-handler)]
+
+    (log/info "Running Jetty with auto reloading = " reload?)
+    (jetty/run-jetty handler {:join? false
+                              :host (or host "127.0.0.1")
+                              :port port})))
+
+(defmethod ig/halt-key! :server/jetty [_ server]
+  (.stop server))```
+
+andrea.crotti   [7 days ago]
+for jetty for example
+
+andrea.crotti   [7 days ago]
+it's quite easy to do
+
+andrea.crotti   [7 days ago]
+we also have nrepl and sass compilation there
+
+vemv   [7 days ago]
+thanks so far! does emacs connect to your figwheel or nrepl component?
+
+vemv   [7 days ago]
+(for the clojurescript part)
+
+andrea.crotti   [7 days ago]
+no actually the figwheel in integrant bit is only used when running outside of Emacs
+
+andrea.crotti   [7 days ago]
+inside Emacs we still use the rest of the stuff, but figwheel main is started by Cider itself
+
+andrea.crotti   [7 days ago]
+there is just some code in `user.clj` to start the rest of the integrant shebang
+
+vemv   [7 days ago]
+ah damn... that was the part that interested me the most :slightly_smiling_face:
+
+andrea.crotti   [7 days ago]
+well it's one line
+
+andrea.crotti   [7 days ago]
+(ig.repl/set-prep! (constantly dev-config))
+
+andrea.crotti   [7 days ago]
+and then if you import this
+[integrant.repl :as ig.repl :refer [clear go halt init reset reset-all]]
+
+andrea.crotti   [7 days ago]
+you just have to type `(go)` in your Clj repl
+
+andrea.crotti   [7 days ago]
+I can't share the actual code because it's from work but I'll add something similar now to my own OSS project which I can instead share (edited)
+
+andrea.crotti   [7 days ago]
+@vemv https://github.com/AndreaCrotti/elo/pull/140
+AndreaCrotti
+#140 add user file and set up correctly
+Comments
+1
+AndreaCrotti/eloFeb 6thAdded by GitHub
+
+andrea.crotti   [7 days ago]
+just got it working on one of my personal projects
+
+andrea.crotti   [7 days ago]
+integrant is really just handling jetty when you start with Emacs
+
+vemv   [7 days ago]
+hey! hmmm, let me make sure... I was talking about `figwheel main is started by Cider itself`... that's the part I'm trying to avoid
+
+the goal is having all the "server side" (figwheel, nrepl etc) inside Integrant. So emacs becomes a thin client
+
+andrea.crotti   [7 days ago]
+well you can probably do that but don't want you want a cljs repl?
+
+andrea.crotti   [7 days ago]
+you can start everything with integrant and do cider-connect into a running nrepl
+
+andrea.crotti   [7 days ago]
+but I'm not sure if cljs would work though
+
+vemv   [7 days ago]
+yeah that's what I'm curious about... particularly when the "figwheel component" is subject to restarts

@@ -408,6 +408,30 @@
   [global-button]
    [sliders]])
 
+
+(defn interpolate [x]
+  "We have two ranges, the selected frequency range and the range of value 
+of selected attribute at a given state,which is filtered to its system or
+remains global (:global db). x is the a value of an attribute, this function 
+returns the frequency"
+  (let [selected-attr @(subscribe [::subs/selected-attr])
+        spheres (subscribe [::subs/spheres])
+        sorted-spheres (subscribe [::subs/sorted-spheres])
+        global @(subscribe [::subs/global])
+        y-range (subscribe [::subs/freq-range])
+        y-1 (:min @y-range)
+        y-2 (:max @y-range)
+        x-1-global (apply min (map selected-attr @spheres))
+        x-1-local (apply min (map selected-attr @sorted-spheres))
+        x-2-global (apply max (map selected-attr @spheres))
+        x-2-local (apply max (map selected-attr @sorted-spheres))]
+    (if global
+      (+ y-1 (* (- y-2 y-1) (/ (- x x-1-global) (- x-2-global x-1-global))))
+      (+ y-1 (* (- y-2 y-1) (/ (- x x-1-local) (- x-2-local x-1-local)))))
+    ))
+
+
+
 (defn graph-tooltip
   "helper function defines tooltip text"
   [trans selected-attr body]
@@ -447,7 +471,7 @@
       ]
      [:text.tooltip {:x 700
                      :y 35}
-      (str (+ adjustment (/ (selected-attr body) @freq-rate)) " Hz")]])
+      (str (interpolate (selected-attr body)) " Hz")]])
   )
 
 
@@ -465,26 +489,7 @@
 
 
 
-(defn interpolate [x]
-  "We have two ranges, the selected frequency range and the range of value 
-of selected attribute at a given state,which is filtered to its system or
-remains global (:global db). x is the a value of an attribute, this function 
-returns the frequency"
-  (let [selected-attr @(subscribe [::subs/selected-attr])
-        spheres (subscribe [::subs/spheres])
-        sorted-spheres (subscribe [::subs/sorted-spheres])
-        global @(subscribe [::subs/global])
-        y-range (subscribe [::subs/freq-range])
-        y-1 (:min @y-range)
-        y-2 (:max @y-range)
-        x-1-global (apply min (map selected-attr @spheres))
-        x-1-local (apply min (map selected-attr @sorted-spheres))
-        x-2-global (apply max (map selected-attr @spheres))
-        x-2-local (apply max (map selected-attr @sorted-spheres))]
-    (if global
-      (+ y-1 (* (- y-2 y-1) (/ (- x x-1-global) (- x-2-global x-1-global))))
-      (+ y-1 (* (- y-2 y-1) (/ (- x x-1-local) (- x-2-local x-1-local)))))
-    ))
+
 ;; (interpolate 365)
 
 ;;look at spec, son't know where to place it.
@@ -530,7 +535,6 @@ returns the frequency"
                  ]
              [:g {:key (str "g-" (:name body))
                                         ;:data-tooltip "boo"
-                  :on-mouse-over #(dispatch [:audio adshr (+ adjustment (/ (selected-attr body) @freq-rate))])
                   }
               [:circle#graph
                {:r size
@@ -538,6 +542,9 @@ returns the frequency"
                 :cy 100
                 ;; :fill "#6666"
                 :key (str "circle-" (:name body))
+                :on-mouse-over #(dispatch [:audio adshr (interpolate (selected-attr body))])
+                ;#(dispatch [:audio adshr (+ adjustment (/ (selected-attr body) @freq-rate))])
+                  
                 }]
                                         ;[tooltip2 xtrans ytrans x-select y-select body]
 [graph-tooltip trans selected-attr body]
@@ -572,7 +579,7 @@ returns the frequency"
    (let [toggled-on (subscribe [::subs/toggled-attr])
          freq-rate (subscribe [::subs/freq-rate])
          adjustment (:min @(subscribe [::subs/freq-range])) ;30hz is the lowest audiable so the range is increased by that much for 0 to be audiable.
-         toggled-reduced  (vec (map #(+ adjustment (/ % @freq-rate)) @toggled-on))
+         toggled-reduced  (vec (map #(interpolate %) @toggled-on))
          adshr @(subscribe [::subs/envelope])
          global (subscribe [::subs/global])]
      
@@ -693,7 +700,6 @@ returns the frequency"
     "Made by"
     [:a {:href "https://github.com/manandearth"} " Adam Gefen, "]
     "A clojure developer, an open source under the " [:a {:href "https://opensource.org/licenses/Artistic-2.0"} "Apache Artistic License 2.0"]]])
-
 
 
 
