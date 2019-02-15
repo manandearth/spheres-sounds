@@ -77,3 +77,5 @@
  (fn [db [_ rate]] 
    (assoc db :freq-rate rate)))
 
+;;TODO update-freq-rate! takes the rate from the subscription:
+;;calc-freq-rate -- this needs to be updated with the interpolate function. Also in the view 'sliders' the two rate subscriptions seem redundant. --> the idea is to have a correct interpolation and perhaps not use a fixed rate as this is what's confusing. -->>> actually a fixed number rate is not possible so correct it...!!!!!!

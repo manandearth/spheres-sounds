@@ -362,20 +362,16 @@
 
 (defn sliders []
   (let 
-      [
-       ;; frequency-range (r/atom {:min "30" :max "12000"})
+      [;; frequency-range (r/atom {:min "30" :max "12000"})
        freq-range (subscribe [::subs/freq-range])
-       calc-freq-rate (subscribe [::subs/calc-freq-rate])
-       freq-rate (subscribe [::subs/freq-rate])]
+       ]
     [:div.container 
      {:style {:display "inline-block"}}
      [:div.column  {:style {:transform "translate(25px, 0px)"}}
       [:input {:type "range" :id "min" :name "low-bar"
                :min "30" :max (:max @freq-range)  :step "1" :value (:min @freq-range)
-               :on-change #(do
-                             (dispatch [:update-freq-range! :min (js/parseFloat (.-target.value %))])
-                                        ;(swap! temp-freq-range assoc :min (.-target.value %))
-                             (dispatch [:update-freq-rate! @calc-freq-rate]))}]
+               :on-change #(dispatch [:update-freq-range! :min (js/parseFloat (.-target.value %))])
+               }]
       [:h3  (str "min : " (:min @freq-range))]
       ]
      
@@ -383,11 +379,8 @@
       [:input {:type "range" :id "max" :name "high-bar"
                :min (:min @freq-range) :max "12000"  :step "1"
                :value (:max @freq-range)
-               :on-change #(do
-                             (dispatch [:update-freq-range! :max (js/parseFloat (.-target.value %))])
-                                        ;(swap! temp-freq-range assoc :max (.-target.value %))
-                             (dispatch [:update-freq-rate! @calc-freq-rate]))
-                             }]
+               :on-change #(dispatch [:update-freq-range! :max (js/parseFloat (.-target.value %))])
+               }]
       [:h3  (str "max : " (:max @freq-range))]
       ]
      ]))
@@ -430,6 +423,22 @@ returns the frequency"
       (+ y-1 (* (- y-2 y-1) (/ (- x x-1-local) (- x-2-local x-1-local)))))
     ))
 
+;; (interpolate 365)
+
+;;look at spec, son't know where to place it.
+
+;; (s/fdef interpolate :args (s/cat :x number?))
+;; (stest/instrument `interpolate)
+
+;; (interpolate "e")
+;; (interpolate 2)
+
+;;example spec:
+;; (defn same-number [x]
+;;   x)
+;; (s/fdef same-number :args (s/cat :x number?))
+;; (stest/instrument `same-number)
+;; (same-number 2)
 
 
 (defn graph-tooltip
@@ -486,29 +495,6 @@ returns the frequency"
                         :on-key-down #(when (a? %)
                                         (dispatch [:todos/add @title])
                                         (reset! title ""))}])))
-
-
-
-
-;; (interpolate 365)
-
-;;look at spec, son't know where to place it.
-
-(s/fdef interpolate :args (s/cat :x number?))
-(stest/instrument `interpolate)
-
-;; (interpolate "e")
-;; (interpolate 2)
-
-;;example spec:
-;; (defn same-number [x]
-;;   x)
-;; (s/fdef same-number :args (s/cat :x number?))
-;; (stest/instrument `same-number)
-;; (same-number 2)
-
-
-
 
 (defn graph []
   [:svg {:width 1800 :x -200 :y 150}
@@ -686,6 +672,59 @@ returns the frequency"
        ])))
 
 
+(defn key-map []
+  (dispatch
+   [::rp/set-keydown-rules
+    {;; takes a collection of events followed by key combos that can trigger the event
+     :event-keys [
+                  ;; Event & key combos 1
+                  [;; this event
+                   [:toggle-global]
+                   ;; will be triggered if
+                   ;; enter
+                   [{:keyCode 220}]
+                   ;; or delete
+                   [{:keyCode 220
+                     :shiftKey true}]]
+                  ;; is pressed
+                  
+                  ;; Event & key combos 2
+                  [;; this event
+                   [:toggle-global]
+                   ;; will be triggered if
+                   ;; tab is pressed twice in a row
+                   [{:keyCode 9} {:keyCode 9}]]]
+     
+     ;; takes a collection of key combos that, if pressed, will clear
+     ;; the recorded keys
+     :clear-keys
+     ;; will clear the previously recorded keys if
+     [;; escape
+      [{:keyCode 27}]
+      ;; or Ctrl+g
+      [{:keyCode   71
+        :ctrlKey true}]]
+     ;; is pressed
+     
+     ;; takes a collection of keys that will always be recorded
+     ;; (regardless if the user is typing in an input, select, or textarea)
+     :always-listen-keys
+     ;; will always record if
+     [;; enter
+      {:keyCode 13}]
+     ;; is pressed
+     
+     ;; takes a collection of keys that will prevent the default browser
+     ;; action when any of those keys are pressed
+     ;; (note: this is only available to keydown)
+     :prevent-default-keys
+     ;; will prevent the browser default action if
+     [;; Ctrl+g
+      {:keyCode   71
+       :ctrlKey true}]
+     ;; is pressed
+     }]))
+
 
 
 (defn footer []
@@ -700,65 +739,6 @@ returns the frequency"
     "Made by"
     [:a {:href "https://github.com/manandearth"} " Adam Gefen, "]
     "A clojure developer, an open source under the " [:a {:href "https://opensource.org/licenses/Artistic-2.0"} "Apache Artistic License 2.0"]]])
-
-
-
-;;;;;KEY PRESSES;;;;;;;;;
-(dispatch
- [::rp/set-keydown-rules
-  {;; takes a collection of events followed by key combos that can trigger the event
-   :event-keys [
-                ;; Event & key combos 1
-                [;; this event
-                 [:toggle-global]
-                 ;; will be triggered if
-                 ;; enter
-                 [{:keyCode 220}]
-                 ;; or delete
-                 [{:keyCode 220
-                   :shiftKey true}]]
-                ;; is pressed
-
-                ;; Event & key combos 2
-                [;; this event
-                 [:toggle-global]
-                 ;; will be triggered if
-                 ;; tab is pressed twice in a row
-                 [{:keyCode 9} {:keyCode 9}]]]
-
-   ;; takes a collection of key combos that, if pressed, will clear
-   ;; the recorded keys
-   :clear-keys
-   ;; will clear the previously recorded keys if
-   [;; escape
-    [{:keyCode 27}]
-    ;; or Ctrl+g
-    [{:keyCode   71
-      :ctrlKey true}]]
-   ;; is pressed
-
-   ;; takes a collection of keys that will always be recorded
-   ;; (regardless if the user is typing in an input, select, or textarea)
-   :always-listen-keys
-   ;; will always record if
-   [;; enter
-    {:keyCode 13}]
-   ;; is pressed
-
-   ;; takes a collection of keys that will prevent the default browser
-   ;; action when any of those keys are pressed
-   ;; (note: this is only available to keydown)
-   :prevent-default-keys
-   ;; will prevent the browser default action if
-   [;; Ctrl+g
-    {:keyCode   71
-     :ctrlKey true}]
-   ;; is pressed
-   }])
-
-
-
-
 
 (defn main-panel []
   (let [name (subscribe [::subs/name])
@@ -789,4 +769,8 @@ returns the frequency"
      [controls]
      [envelope-input]
      [footer]
-     ]))
+     (key-map)
+
+
+     ]
+    ))

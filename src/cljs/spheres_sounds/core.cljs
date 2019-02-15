@@ -5,7 +5,7 @@
    [spheres-sounds.events :as events]
    [spheres-sounds.views :as views]
    [spheres-sounds.config :as config]
-   ))
+   [re-pressed.core :as rp]))
 
 
 (defn dev-setup []

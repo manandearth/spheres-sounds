@@ -176,6 +176,9 @@ spheres by order from left to right, but also to
 show each clock by lighting the corresponding
 sphere in the [graph].
 
+****** the problem
+the keys are listening to event. how to design an event that will assign the keys so that this way of calling the event will work.
+
 
 *** TODO make the gain slider do something...
 
@@ -325,6 +328,13 @@ on every dispatch of :audio/
 perhaps has to do with cofx? routing the side effect to somewhere..
 
 *** TODO adshr needs a spec
+
+*** TODO frequency not consistent... there's some mistake somewhere
+
+**** DEBUGGING
+1) go through all functions that have to do with interpolation
+2) move all those functions to subscription and events.
+3) minimise. there are some repetitions - design fault ones.
 
 
 ** NEW FEATURES 
