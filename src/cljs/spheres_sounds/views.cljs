@@ -517,26 +517,16 @@ returns the frequency"
                  freq-rate (subscribe [::subs/calc-freq-rate])
                  freq-range @(subscribe [::subs/freq-range])
                  adjustment  (:min freq-range)
-                 global @(subscribe [::subs/global])
-                 ]
-             [:g {:key (str "g-" (:name body))
-                                        ;:data-tooltip "boo"
-                  }
+                 global @(subscribe [::subs/global])]
+             [:g {:key (str "g-" (:name body))}
               [:circle#graph
                {:r size
                 :cx trans 
                 :cy 100
                 ;; :fill "#6666"
                 :key (str "circle-" (:name body))
-                :on-mouse-over #(dispatch [:audio adshr (interpolate (selected-attr body))])
-                ;#(dispatch [:audio adshr (+ adjustment (/ (selected-attr body) @freq-rate))])
-                  
-                }]
-                                        ;[tooltip2 xtrans ytrans x-select y-select body]
-[graph-tooltip trans selected-attr body]
-              
-              
-              
+                :on-mouse-over #(dispatch [:audio adshr (interpolate (selected-attr body))])}]
+              [graph-tooltip trans selected-attr body]
               [:text#graph
                { :x trans
                 :y 100
@@ -544,20 +534,6 @@ returns the frequency"
                 :fill "#888888"
                 :key (str "text-" (:name body))} (:name body)]
               ]))])])
-
-
-;; (dispatch [:audio @(subscribe
-;;                    [::subs/envelope])
-;;            (+ 30
-;;               (/ (@(subscribe [::subs/selected-attr])
-;;                   (first @(subscribe [::subs/spheres])))
-;;                  @(subscribe [::subs/freq-rate])))])
-
-
-
-;; (list (@(subscribe [::subs/selected-attr]) (nth @(subscribe [::subs/sorted-spheres]) 3)))
-
-;; (map #(+ 30 (/ % @(subscribe [::subs/freq-rate]))) @(subscribe [::subs/toggled-attr]))
 
 (defn chord
   []
@@ -672,60 +648,80 @@ returns the frequency"
        ])))
 
 
-(defn key-map []
+
+(defn key-event-vec []
+  (let [selected-attr @(subscribe [::subs/selected-attr])
+        spheres @(subscribe [::subs/sorted-spheres])
+        adshr @(subscribe [::subs/envelope])
+        key-vec [65 83 68 70 71 72 74 75 76 186 192 222 90]]
+    {:event-keys (into [] (for [body spheres :when (:vis body)]
+                            [[:audio adshr (interpolate (selected-attr body))]
+                             [{:keyCode (nth key-vec (.indexOf spheres body))}]]))}))
+
+(defn keyboard []
   (dispatch
-   [::rp/set-keydown-rules
-    {;; takes a collection of events followed by key combos that can trigger the event
-     :event-keys [
-                  ;; Event & key combos 1
-                  [;; this event
-                   [:toggle-global]
-                   ;; will be triggered if
-                   ;; enter
-                   [{:keyCode 220}]
-                   ;; or delete
-                   [{:keyCode 220
-                     :shiftKey true}]]
-                  ;; is pressed
-                  
-                  ;; Event & key combos 2
-                  [;; this event
-                   [:toggle-global]
-                   ;; will be triggered if
-                   ;; tab is pressed twice in a row
-                   [{:keyCode 9} {:keyCode 9}]]]
-     
-     ;; takes a collection of key combos that, if pressed, will clear
-     ;; the recorded keys
-     :clear-keys
-     ;; will clear the previously recorded keys if
-     [;; escape
-      [{:keyCode 27}]
-      ;; or Ctrl+g
-      [{:keyCode   71
-        :ctrlKey true}]]
-     ;; is pressed
-     
-     ;; takes a collection of keys that will always be recorded
-     ;; (regardless if the user is typing in an input, select, or textarea)
-     :always-listen-keys
-     ;; will always record if
-     [;; enter
-      {:keyCode 13}]
-     ;; is pressed
-     
-     ;; takes a collection of keys that will prevent the default browser
-     ;; action when any of those keys are pressed
-     ;; (note: this is only available to keydown)
-     :prevent-default-keys
-     ;; will prevent the browser default action if
-     [;; Ctrl+g
-      {:keyCode   71
-       :ctrlKey true}]
-     ;; is pressed
-     }]))
+   [::rp/set-keydown-rules (key-event-vec)]))
 
 
+;; (defn key-map []
+;;   (dispatch
+;;    [::rp/set-keydown-rules
+;;     {;; takes a collection of events followed by key combos that can trigger the event
+;;      :event-keys
+;;      [
+;;       ;; Event & key combos 1
+;;       [;; this event
+;;        [:toggle-global] ; will be triggered if
+;;        [{:keyCode 220}] ; enter
+;;        [{:keyCode 220  ; or delete
+;;          :shiftKey true}]] ; is pressed
+      
+;;       ;; Event & key combos 2
+;;       [; this event will be triggered if
+;;        [:toggle-global]   ;tab is pressed twice in a row
+;;        [{:keyCode 9} {:keyCode 9}]]
+;;       ]
+     
+;;      ;; takes a collection of key combos that, if pressed, will clear
+;;      ;; the recorded keys
+;;      :clear-keys
+;;      ;; will clear the previously recorded keys if
+;;      [;; escape
+;;       [{:keyCode 27}]
+;;       ;; or Ctrl+g
+;;       [{:keyCode   71
+;;         :ctrlKey true}]]
+;;      ;; is pressed
+     
+;;      ;; takes a collection of keys that will always be recorded
+;;      ;; (regardless if the user is typing in an input, select, or textarea)
+;;      :always-listen-keys
+;;      ;; will always record if
+;;      [;; enter
+;;       {:keyCode 13}]
+;;      ;; is pressed
+     
+;;      ;; takes a collection of keys that will prevent the default browser
+;;      ;; action when any of those keys are pressed
+;;      ;; (note: this is only available to keydown)
+;;      :prevent-default-keys
+;;      ;; will prevent the browser default action if
+;;      [;; Ctrl+g
+;;       {:keyCode   71
+;;        :ctrlKey true}]
+;;      ;; is pressed
+;;      }]))
+
+
+;; ;; (let [spheres @(subscribe [::subs/sorted-spheres])
+;; ;;       selected-attr @(subscribe [::subs/selected-attr])
+;; ;;       key-vec [65 83 68 70 71 72 74 75 76 186 192 222 90]]
+;; ;;   (for [body spheres :when (:vis body)]
+;; ;;     {(selected-attr body) (nth key-vec (.indexOf spheres body))}
+;; ;;     )
+;; ;;   )
+
+;;TODO make nth work on this above 
 
 (defn footer []
   [:div.footer
@@ -769,8 +765,8 @@ returns the frequency"
      [controls]
      [envelope-input]
      [footer]
-     (key-map)
-
+     ;; (key-map)
+     (keyboard)
 
      ]
     ))
