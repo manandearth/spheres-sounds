@@ -177,6 +177,16 @@
      
      )
 
+
+
+
+(def key-map {:number-vec [49 50 51 52 53 54 55 56 57 48]
+              :qwerty-vec [81 87 69 82 84 89 85 73 79 80 219 221]
+              :home-vec [65 83 68 70 71 72 74 75 76 186 192 222 90]
+              :zxc-vec [90 88 67 86 66 78 77 188 190 191]
+              })
+
+
 (defn systems-box []
   (let [x-position 100]
     [:svg.system {:x 0
@@ -204,10 +214,12 @@
      ]))
 
 (defn systems-menu []
-  [:svg {:style {:width 1200 :height 30
+  [:svg {:style {:width 1200 :height 60
                  }}
    (let [systems @(subscribe [::subs/systems])
-         selected-system @(subscribe [::subs/selected-system])]
+         selected-system @(subscribe [::subs/selected-system])
+         number-vec (:number-vec key-map)
+         number-key [1 2 3 4 5 6 7 8 9 0]]
      [:svg {:x 100}
       (for [system systems]
         (if (= selected-system (clojure.string/capitalize system))
@@ -215,24 +227,33 @@
            [:rect.selected {:x (* 127 (.indexOf systems system))
                           :y 0
                           :width 110
-                          :height 30
+                          :height 60
                           }]
            [:text.selected {:x (* 127 (.indexOf systems system))
                           :y 25
                           :on-click #(dispatch [:select-system (clojure.string/capitalize system)]) 
-                          } (clojure.string/capitalize system)]
+                            }  (clojure.string/capitalize system)
+            ]
+           [:text.system {:x (+ 32 (* 127 (.indexOf systems system)))
+                          :y 50
+                          :on-click #(dispatch [:select-system (clojure.string/capitalize system)]) 
+                            } (str "\n<" (nth number-key (.indexOf systems system)) ">")]
            ]
           [:g {:key (str system " not-selected") :style {:cursor "pointer"}}
            [:rect.system {:x (* 127 (.indexOf systems system))
                           :y 0
                           :width 110
-                          :height 30
+                          :height 60
                           }]
            [:text.system {:x (* 127 (.indexOf systems system))
                           :y 25
                           :on-click #(dispatch [:select-system (clojure.string/capitalize system)])
                           
                           } (clojure.string/capitalize system)]
+           [:text.system {:x (+ 32 (* 127 (.indexOf systems system)))
+                          :y 50
+                          :on-click #(dispatch [:select-system (clojure.string/capitalize system)]) 
+                            } (str "\n<" (nth number-key (.indexOf systems system)) ">")]
            ]))])]
   )
 
@@ -295,25 +316,32 @@
 
 
 (defn stage []
-  [:div [:svg {:style {:width 1200 :height 250}}
-         [:rect.system {:x 100 :y 20 :width 1000 :height 200}]
-         [:svg  {:x 40 :width 1080 :height 300}
+  [:div [:svg {:style {:width 1200 :height 210}}
+         [:rect.system {:x 100 :y 20 :width 1000 :height 180}]
+         [:svg  {:x 40 :width 1080 :height 180}
 
-          (let [selected-system (subscribe [::subs/sorted-spheres])]
+          (let [selected-system (subscribe [::subs/sorted-spheres])
+                qwerty-vec (:qwerty-vec key-map)
+                qwerty-keys [\q \w \e \r \t \y \u \i \o \p \[ \] ]]
             (for [sphere @selected-system]
               (if (:vis sphere)
                 [:g 
                  {:key (str "g-" sphere)
                   :on-click #(dispatch [:visible (:name sphere)])}
-                 [:rect.selected {:width 70 :height 20 :x (* 81 (inc (.indexOf @selected-system sphere))) :y 50
+                 [:rect.selected {:width 70 :height 50 :x (* 81 (inc (.indexOf @selected-system sphere))) :y 50
                                   }]
-                 [:text.spheres.visible {:x (* 81 (inc (.indexOf @selected-system sphere))) :y 65}
-                  (:name sphere)]]
+                 [:text.spheres.visible {:x (+ 5 (* 81 (inc (.indexOf @selected-system sphere)))) :y 65}
+                  (:name sphere)]
+                 [:text.spheres {:x (+ 20 (* 81 (inc (.indexOf @selected-system sphere)))) :y 90}
+                  (str "<" (nth qwerty-keys (.indexOf @selected-system sphere)) ">")]
+                 ]
                 [:g {:key (str "g-" sphere)
                      :on-click #(dispatch [:visible (:name sphere)])}
-                 [:rect.system {:width 70 :height 20 :x (* 81 (inc (.indexOf @selected-system sphere))) :y 50}]
-                 [:text.spheres {:x (* 81 (inc (.indexOf @selected-system sphere))) :y 65}
-                  (:name sphere)]]
+                 [:rect.system {:width 70 :height 50 :x (* 81 (inc (.indexOf @selected-system sphere))) :y 50}]
+                 [:text.spheres {:x (+ 5 (* 81 (inc (.indexOf @selected-system sphere)))) :y 65}
+                  (:name sphere)]
+                 [:text.spheres {:x (+ 20 (* 81 (inc (.indexOf @selected-system sphere)))) :y 90}
+                  (str "<" (nth qwerty-keys (.indexOf @selected-system sphere)) ">")]]
                 )))]
          [selected-system-box]
          ]]
@@ -356,21 +384,23 @@
        ]
     [:div.container 
      {:style {:display "inline-block"}}
-     [:div.column  {:style {:transform "translate(25px, 0px)"}}
-      [:input {:type "range" :id "min" :name "low-bar"
+     [:div.column  {:style {:transform "translate(25px, -60px)"}}
+      [:input {:style {:margin 0}
+               :type "range" :id "min" :name "low-bar"
                :min "30" :max (:max @freq-range)  :step "1" :value (:min @freq-range)
                :on-change #(dispatch [:update-freq-range! :min (js/parseFloat (.-target.value %))])
                }]
-      [:h3  (str "min : " (:min @freq-range))]
+      [:h3  {:style {:margin 0}} (str "min : " (:min @freq-range))]
       ]
      
-     [:div.column {:style {:transform "translate(25px, 0px)"}}
-      [:input {:type "range" :id "max" :name "high-bar"
+     [:div.column {:style {:transform "translate(25px, -60px)"}}
+      [:input {:style {:margin 0}
+               :type "range" :id "max" :name "high-bar"
                :min (:min @freq-range) :max "12000"  :step "1"
                :value (:max @freq-range)
                :on-change #(dispatch [:update-freq-range! :max (js/parseFloat (.-target.value %))])
                }]
-      [:h3  (str "max : " (:max @freq-range))]
+      [:h3  {:style {:margin 0}} (str "max : " (:max @freq-range))]
       ]
      ]))
 
@@ -459,21 +489,21 @@ returns the frequency"
       (str (interpolate (selected-attr body)) " Hz")]])
   )
 
-
 (defn graph []
   [:svg {:width 1800 :x -200 :y 150}
-   (let [spheres (subscribe [::subs/sorted-spheres])
+   (let [spheres @(subscribe [::subs/sorted-spheres])
          selected-attr @(subscribe [::subs/selected-attr])
          sys-selected @(subscribe [::subs/selected-system])
          adshr @(subscribe [::subs/envelope])
+         selected-spheres @(subscribe [::subs/selected-spheres])
          ;;visual:
-         min-val (apply min (map selected-attr (filter #(= true (:vis %)) @spheres)))
-         max-val (apply max (map selected-attr (filter #(= true (:vis %)) @spheres)))
+         min-val (apply min (map selected-attr (filter #(= true (:vis %)) spheres)))
+         max-val (apply max (map selected-attr (filter #(= true (:vis %)) spheres)))
          fit  (/ max-val 900)
-         
+         home-keys [\a \s \d \f \g \h \j \k \l \; \' \# ]
          ]
      [:g
-      (for [body @spheres
+      (for [body spheres
                :when (:vis body) ;toggle visability
                ]
            (let [trans (+ 350 (/ (selected-attr body) fit)) ;visual
@@ -497,6 +527,13 @@ returns the frequency"
                 :font-size 10
                 :fill "#888888"
                 :key (str "text-" (:name body))} (:name body)]
+              [:text
+               {:x trans
+                :y  170
+                :font-size 20
+                :fill "#fff"}
+               (str "<" (nth home-keys (.indexOf selected-spheres body)) ">")
+               ]
               ]))])])
 
 (defn chord
@@ -512,8 +549,8 @@ returns the frequency"
      [:g {:key "chord"
           :cursor "pointer"
           :on-click #(dispatch [:chord adshr toggled-reduced])}
-      [:rect.system {:x 550 :y 110 :width 100 :height 30}]
-      [:text.system {:x 560 :y 130} "Chord"]])])
+      [:rect.system {:x 550 :y 140 :width 100 :height 30}]
+      [:text.system {:x 560 :y 160} "Chord"]])])
 
 
 (defn attribute-selector []
@@ -522,25 +559,32 @@ returns the frequency"
    (let [attributes (subscribe [::subs/attributes])
          selected-attr @(subscribe [::subs/selected-attr])
          calc-freq-rate (subscribe [::subs/calc-freq-rate])
-         freq-rate (subscribe [::subs/freq-rate])]
+         freq-rate (subscribe [::subs/freq-rate])
+         zxc-keys [\z \x \c \v \b \n \m \, \. \/ ]]
      (for [attr @attributes]
        (if (= attr selected-attr)
          [:g {:cursor "pointer"
               }
           [:rect.selected {:x (* 140 (inc (.indexOf @attributes attr)))  :y 60
-                           :height 30 :width 100
+                           :height 60 :width 100
                            }]
           [:text.spheres.visible {:x (* 140 (inc (.indexOf @attributes attr)))  :y 80
                            :height 30 :width 100
-                           } attr]]
+                                  } attr]
+          [:text.spheres.system {:x (+ 35 (* 140 (inc (.indexOf @attributes attr))))  :y 110
+                                  :height 30 :width 100}
+           (str "<" (nth zxc-keys (.indexOf @attributes attr)) ">")]]
          [:g {:cursor "pointer" :on-click #(do (dispatch [:select-attribute attr])
                                                (dispatch [:update-freq-rate! @calc-freq-rate]))}
           [:rect.system  {:x (* 140 (inc (.indexOf @attributes attr)))  :y 60
-                           :height 30 :width 100
+                           :height 60 :width 100
                            }]
           [:text.spheres.system {:x (* 140 (inc (.indexOf @attributes attr)))  :y 80
                            :height 30 :width 100
-                           } attr]]
+                                 } attr]
+          [:text.spheres.system {:x (+ 35 (* 140 (inc (.indexOf @attributes attr))))  :y 110
+                                  :height 30 :width 100}
+           (str "<" (nth zxc-keys (.indexOf @attributes attr)) ">")]]
          )))]
   )
 
@@ -548,8 +592,7 @@ returns the frequency"
   [:svg {:width 1200 :height 350}
    [:rect.system {:x 100 :y 50 :width 1000 :height 300}]
    [attribute-selector]
-[graph]
-   
+   [graph]
    [chord]])
 
 
@@ -572,7 +615,7 @@ returns the frequency"
      [:text.system {:y 80 :x 520} "-A-D-S-H-R-"]]
     ]
    [:div
-    [:h3 "envelope (temporarily specless) enter 5 integers (i.e. 01010)"]]
+    [:h3.guide "envelope (temporarily specless) enter 5 integers (i.e. 01010)"]]
    ;[volume-slider]
    ])
 
@@ -591,20 +634,19 @@ returns the frequency"
                                                   (vec (map js/parseInt
                                                               (rest (clojure.string/split @envelope #""))))])))}])))
 
-
 (defn keydown-rules []
   (let [selected-attr @(subscribe [::subs/selected-attr])
         spheres @(subscribe [::subs/sorted-spheres])
         adshr @(subscribe [::subs/envelope])
-        homerow-vec [65 83 68 70 71 72 74 75 76 186 192 222 90]
+        homerow-vec (:home-vec key-map)
         ordered-spheres (sort-by selected-attr (filter #(= (:vis %) true) spheres))
         systems @(subscribe [::subs/systems])
         selected-system @(subscribe [::subs/selected-system])
-        numbers-vec [49 50 51 52 53 54 55 56 57 48]
+        numbers-vec (:number-vec key-map)
         selected-system-attr @(subscribe [::subs/selected-system-attr])
-        qwerty-vec [81 87 69 82 84 89 85 73 79 80 219 221]
+        qwerty-vec (:qwerty-vec key-map)
         attrs @(subscribe [::subs/attributes])
-        zxc-vec [90 88 67 86 66 78 77 188 190 191]]
+        zxc-vec (:zxc-vec key-map)]
     {:event-keys
      
      (into
@@ -624,10 +666,11 @@ returns the frequency"
         (for [system systems]
           [[:select-system (clojure.string/capitalize system)]
            [{:keyCode (nth numbers-vec (.indexOf systems system))}]]))
+       
        (for [sphere spheres]
          [[:visible (:name sphere)]
           [{:keyCode (nth qwerty-vec (.indexOf spheres sphere))}]]))
-
+      
       (for [attr attrs]
         [[:select-attribute attr]
          [{:keyCode (nth zxc-vec (.indexOf attrs attr))}]])
@@ -712,18 +755,23 @@ returns the frequency"
           spheres (subscribe [::subs/spheres])]
 
     [:div
-     [:div.guide
+     [:div.guide {:style {:width 1000}}
       [:h1  @name "/interplanetary instrument"]
       [:h3 "Some of the bodies in our solar system are gigantic and they travel in greater speed than anything on this planet, yet they are silent. The following is an interactive exploration of the relation between some of those bodies through sound."]
-      [:h2 "Select a system:"]
+      [:h2 {:style {:margin-bottom -5}}
+       "Select a system:"]
       ]
      [systems-menu]
      [systems-box]
-     [:h2.guide "Toggle spheres on or off:"]
+     [:h3.guide {:style {:margin-top -15 :margin-bottom -15}}
+      "Toggle spheres on or off:"]
      [stage]
-     [:h2.guide "Choose the attribute that will be used for frequency:"]
-     [:h3.guide {:title "you will need headphones or some reasonable speakers as the tones tend to mostly be right at the edges.."} "Toggle" [:span {:style {:color "sandybrown"}} " <Global/Local>"] " and set the range -> 30Hz the lowest and 12KHz the highest"]
+     [:h3.guide {:title "you will need headphones or some reasonable speakers as the tones tend to mostly be right at the edges.."
+                 :style {:margin -8}}
+      "Toggle" [:span {:style {:color "sandybrown"}} " <Global/Local>"] " and set the range -> 30Hz the lowest and 12KHz the highest"]
      [ranges]
+[:h2.guide {:style {:margin-top -40 :margin-bottom -25}}
+      "Choose the attribute that will be used for frequency:"]
      [player]
      [controls]
      [envelope-input]

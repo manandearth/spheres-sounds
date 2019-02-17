@@ -57,11 +57,12 @@
 
                        (filter #(= parent (:parent %))  spheres)))))
 
+
+
 (reg-sub
  ::selected-attr
  (fn [db]
    (:selected-attr db)))
-
 
 (reg-sub
  ::toggled-attr
@@ -69,6 +70,18 @@
  :<- [::sorted-spheres]
  (fn [[attr spheres] _]
    (map attr (filter :vis spheres))))
+
+(reg-sub
+ ::selected-spheres
+ :<- [::spheres]
+ :<- [::selected-system]
+ :<- [::selected-attr]
+ (fn [[spheres parent attr] _]
+   (sort-by attr
+            (filter #(= true (:vis %)) (concat
+                                        (list (assoc (first (filter #(= parent (:name %)) spheres)) :periapsis (:self-bias parent) :apoapsis (:self-bias parent)))
+                                        (filter #(= parent (:parent %)) spheres))))))
+
 
 (def non-numeric-keys [:parent :satelites :form :name :vis])
 
