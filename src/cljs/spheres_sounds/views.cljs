@@ -77,11 +77,6 @@
 
 (defn sun []
   [:svg
-   ;; [:defs
-   ;;       ;;mask for sun
-   ;;       [:mask {:id "m1" :x "0" :y "0" :width "200%" :height "100%"}
-   ;;        [:rect {:x x-position :width "1000" :height "100" :fill "white"}]]]
-   ;[defs]
    [:circle.sphere.sun {:cx (+ x-position -120)
                         :cy 50
                         :r 200
@@ -296,7 +291,6 @@
                        :filter "url(#f2"}]))
      ]))
 
-;; (.pow js/Math (apply max (map #(.log js/Math (:apoapsis %)) (rest @(subscribe [::subs/sorted-selected])))) 2)
 
 
 
@@ -310,7 +304,7 @@
               (if (:vis sphere)
                 [:g 
                  {:key (str "g-" sphere)
-                  :on-click #(dispatch [:invisible (:name sphere)])}
+                  :on-click #(dispatch [:visible (:name sphere)])}
                  [:rect.selected {:width 70 :height 20 :x (* 81 (inc (.indexOf @selected-system sphere))) :y 50
                                   }]
                  [:text.spheres.visible {:x (* 81 (inc (.indexOf @selected-system sphere))) :y 65}
@@ -355,11 +349,6 @@
   
   )
 
-;; (def temp-freq-range (r/atom {:min 30 :max 12000}))
-
-;; (swap! temp-freq-range assoc :min 49)
-;; @temp-freq-range
-
 (defn sliders []
   (let 
       [;; frequency-range (r/atom {:min "30" :max "12000"})
@@ -385,19 +374,8 @@
       ]
      ]))
 
-;; (:max @(subscribe [::subs/freq-range]))
-;;:on-change (fn [e] (swap! freq-range assoc :max (.-target.value e)))
-
-;;@temp-freq-range
-
-
-
-
 (defn ranges []
   [:div
-   ;; [:svg
-   ;;  {:height 100 :width 1100}
-   ;;  [:rect.system {:x 100 :width 1000 :height 96}]]
   [global-button]
    [sliders]])
 
@@ -422,8 +400,6 @@ returns the frequency"
       (+ y-1 (* (- y-2 y-1) (/ (- x x-1-global) (- x-2-global x-1-global))))
       (+ y-1 (* (- y-2 y-1) (/ (- x x-1-local) (- x-2-local x-1-local)))))
     ))
-
-;; (interpolate 365)
 
 ;;look at spec, son't know where to place it.
 
@@ -484,18 +460,6 @@ returns the frequency"
   )
 
 
-;;TODO working on keys...: 97 is '\a'
-(defn a? [evt]
-  (= (.-which evt) 97)) ;;\a
-
-(defn todo-input []
-  (let [title (r/atom "")]
-    (fn []
-      [:input#new-todo {,,,
-                        :on-key-down #(when (a? %)
-                                        (dispatch [:todos/add @title])
-                                        (reset! title ""))}])))
-
 (defn graph []
   [:svg {:width 1800 :x -200 :y 150}
    (let [spheres (subscribe [::subs/sorted-spheres])
@@ -551,17 +515,6 @@ returns the frequency"
       [:rect.system {:x 550 :y 110 :width 100 :height 30}]
       [:text.system {:x 560 :y 130} "Chord"]])])
 
-;; (vec (map #(+ 30 (/ % @(subscribe [::subs/freq-rate]))) @(subscribe [::subs/toggled-attr])))
-;; (30
-;;  30.0007007975774
-;;  30.00112044523016 
-;;  30.001773676627167 
-;;  30.00313985121476)
-
-
-;;(map #(/ % 100000) @(subscribe [::subs/toggled-apo]))
-;; (0 698.169 1089.39 1520.98232 2492 4454.1 8166.2 15145 30080 72319000)
-;; (map audio/dings (map #(/ % 100000) @(subscribe [::subs/toggled-apo])))
 
 (defn attribute-selector []
   [:svg
@@ -599,9 +552,6 @@ returns the frequency"
    
    [chord]])
 
-;; (subscribe [::subs/name])
-;; (:satelites @(subscribe [::subs/selected-system-attr]))
-;; (for [sphere @(subscribe [::subs/selected-spheres])] (:name sphere))
 
 (def output-gain (r/atom {:gain "2.0"}))
 
@@ -612,8 +562,6 @@ returns the frequency"
                    :on-change (fn [e] (swap! output-gain assoc :gain (.-target.value e)))
                    }]
    [:h3 {:style {:width "100%" :margin-left "400px"}} (:gain @output-gain)]
-   ;[try-me] 
-   
    ])
 
 (defn controls []
@@ -641,26 +589,63 @@ returns the frequency"
                :on-key-press (fn [e] (when (= (.-which e) 13)
                                        (dispatch [:set-envelope!
                                                   (vec (map js/parseInt
-                                                              (rest (clojure.string/split @envelope #""))))])
-                                ;      (reset! envelope [1 1 1 1 1])
-                                      )
-                               )}
-       ])))
+                                                              (rest (clojure.string/split @envelope #""))))])))}])))
 
 
-
-(defn key-event-vec []
+(defn keydown-rules []
   (let [selected-attr @(subscribe [::subs/selected-attr])
         spheres @(subscribe [::subs/sorted-spheres])
         adshr @(subscribe [::subs/envelope])
-        key-vec [65 83 68 70 71 72 74 75 76 186 192 222 90]]
-    {:event-keys (into [] (for [body spheres :when (:vis body)]
-                            [[:audio adshr (interpolate (selected-attr body))]
-                             [{:keyCode (nth key-vec (.indexOf spheres body))}]]))}))
+        homerow-vec [65 83 68 70 71 72 74 75 76 186 192 222 90]
+        ordered-spheres (sort-by selected-attr (filter #(= (:vis %) true) spheres))
+        systems @(subscribe [::subs/systems])
+        selected-system @(subscribe [::subs/selected-system])
+        numbers-vec [49 50 51 52 53 54 55 56 57 48]
+        selected-system-attr @(subscribe [::subs/selected-system-attr])
+        qwerty-vec [81 87 69 82 84 89 85 73 79 80 219 221]
+        attrs @(subscribe [::subs/attributes])
+        zxc-vec [90 88 67 86 66 78 77 188 190 191]]
+    {:event-keys
+     
+     (into
+      (into
+       (into
+        (conj
+         (into []
+               (for [body ordered-spheres]
+                 [[:audio adshr (interpolate (selected-attr body))]
+                  [{:keyCode (nth homerow-vec (.indexOf ordered-spheres body))}]]))
+         
+         [[:toggle-global]
+          [{:keyCode 220}]       ;</>
+          [{:keyCode 220         ;<|>
+            :shiftKey true}]])
+        
+        (for [system systems]
+          [[:select-system (clojure.string/capitalize system)]
+           [{:keyCode (nth numbers-vec (.indexOf systems system))}]]))
+       (for [sphere spheres]
+         [[:visible (:name sphere)]
+          [{:keyCode (nth qwerty-vec (.indexOf spheres sphere))}]]))
+
+      (for [attr attrs]
+        [[:select-attribute attr]
+         [{:keyCode (nth zxc-vec (.indexOf attrs attr))}]])
+      )
+     
+     
+     }))
+
+;;TODO make the key visible when pressed.
 
 (defn keyboard []
   (dispatch
-   [::rp/set-keydown-rules (key-event-vec)]))
+   [::rp/set-keydown-rules
+     (keydown-rules)
+    
+      ]))
+
+
 
 
 ;; (defn key-map []
@@ -712,22 +697,8 @@ returns the frequency"
 ;;      ;; is pressed
 ;;      }]))
 
-
-;; ;; (let [spheres @(subscribe [::subs/sorted-spheres])
-;; ;;       selected-attr @(subscribe [::subs/selected-attr])
-;; ;;       key-vec [65 83 68 70 71 72 74 75 76 186 192 222 90]]
-;; ;;   (for [body spheres :when (:vis body)]
-;; ;;     {(selected-attr body) (nth key-vec (.indexOf spheres body))}
-;; ;;     )
-;; ;;   )
-
-;;TODO make nth work on this above 
-
 (defn footer []
   [:div.footer
-   ;; {:style {:background "#ddd"
-   ;;               :display "block"
-   ;;           }}
    [:p
     {:style
      {:margin-left "100px"
@@ -741,14 +712,6 @@ returns the frequency"
           spheres (subscribe [::subs/spheres])]
 
     [:div
-     ;; {:on-key-down (fn [e] (when (= (.. e -which (getElementById "boo")) 13)
-     ;;                                     (js/alert "hoo!")))
-     ;;  :on-change (fn [e] (swap! output-gain assoc :gain (.-target.value e)))
-     ;;       :title "hey"
-     ;;       :id "boo"
-     ;;       :style {:width 1150
-     ;;               :height 1000
-     ;;               :position "absolute"}}
      [:div.guide
       [:h1  @name "/interplanetary instrument"]
       [:h3 "Some of the bodies in our solar system are gigantic and they travel in greater speed than anything on this planet, yet they are silent. The following is an interactive exploration of the relation between some of those bodies through sound."]
@@ -765,7 +728,6 @@ returns the frequency"
      [controls]
      [envelope-input]
      [footer]
-     ;; (key-map)
      (keyboard)
 
      ]

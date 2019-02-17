@@ -19,12 +19,15 @@
 (reg-event-db
  :visible
  (fn [db [_ sphere]]
-   (assoc-in db [:spheres sphere :vis] true)))
+   (update-in db [:spheres sphere :vis] not)))
 
-(reg-event-db
- :invisible
- (fn [db [_ sphere]]
-   (assoc-in db [:spheres sphere :vis] false)))
+;; (reg-event-db
+;;  :invisible
+;;  (fn [db [_ sphere]]
+;;    (update-in db [:spheres sphere :vis] not)))
+
+
+
 
 ;; (reg-event-db
 ;;  :select-attribute

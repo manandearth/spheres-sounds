@@ -169,7 +169,7 @@ followed by a double <tab> to dispatch the same..
   [{:keyCode 9} {:keyCode 9}]]]
 #+END_SRC
 
-***** TODO how to map the keys for spheres
+***** DONE how to map the keys for spheres
 Need to find a way that not only we interactively
 map the home row keys to the active visible
 spheres by order from left to right, but also to
@@ -177,10 +177,18 @@ show each clock by lighting the corresponding
 sphere in the [graph].
 
 ****** the problem
-the keys are listening to event. how to design an event that will assign the keys so that this way of calling the event will work.
+the keys are listening to event. how to design an
+event that will assign the keys so that this way
+of calling the event will work.
 
+***** TODO add mapping to the rest of the clicky buttons...
 
 *** TODO make the gain slider do something...
+
+*** TODO make the toggle local/global have a third state -> *local/global/visible/*
+In systems with large object such as Jupiters
+.. the moons on their own in some attributes are
+very similar - not very useful as instrument.
 
 *** TODO add envelope [3/6]
 - [X] add a note function that takes [adshr]
