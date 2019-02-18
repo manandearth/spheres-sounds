@@ -65,6 +65,9 @@ create the multimethod.  Then I will see if some orbit
 values create anything interesting in any of the
 systems.
 
+*** TODO add sounds other than the sine wave.
+to be chosen from a menu of sounds perhaps...
+
 ** functionality
 
 *** DONE toggle the selected system in the menu itself
@@ -93,7 +96,7 @@ when hovering over a sphere-key in the keyboard have
 something like "<sphere> distance from <sun> is <so and
 so> km "
 
-**** TODO add a keyboard key and a map 
+**** DONE add a keyboard key and a map 
 for exaple the home row so something like:
 
 | a     | s         | d       | f       | g      | h        | j        | k        | l         | ;       |
@@ -103,7 +106,7 @@ for exaple the home row so something like:
 
 the letter can just be added to the name in the selected-spheres menu.
 
-***** TODO library keys clojurescript -->> RE-PRESSED
+***** DONE library keys clojurescript -->> RE-PRESSED
 https://github.com/gadfly361/re-pressed
 
 #+BEGIN_SRC clojure 
@@ -181,7 +184,7 @@ the keys are listening to event. how to design an
 event that will assign the keys so that this way
 of calling the event will work.
 
-***** TODO add mapping to the rest of the clicky buttons...
+***** DONE add mapping to the rest of the clicky buttons...
 
 *** TODO make the gain slider do something...
 
@@ -189,6 +192,9 @@ of calling the event will work.
 In systems with large object such as Jupiters
 .. the moons on their own in some attributes are
 very similar - not very useful as instrument.
+
+*** TODO improve the ranges of frequency (min/max)
+it is too fiddly at the moment
 
 *** TODO add envelope [3/6]
 - [X] add a note function that takes [adshr]
@@ -337,7 +343,7 @@ perhaps has to do with cofx? routing the side effect to somewhere..
 
 *** TODO adshr needs a spec
 
-*** TODO frequency not consistent... there's some mistake somewhere
+*** DONE frequency not consistent... there's some mistake somewhere
 
 **** DEBUGGING
 1) go through all functions that have to do with interpolation

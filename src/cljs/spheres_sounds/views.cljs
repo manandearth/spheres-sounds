@@ -519,7 +519,8 @@ returns the frequency"
                 :cy 100
                 ;; :fill "#6666"
                 :key (str "circle-" (:name body))
-                :on-mouse-over #(dispatch [:audio adshr (interpolate (selected-attr body))])}]
+                :on-mouse-over #(dispatch [:audio adshr (interpolate (selected-attr body))])
+                }]
               [graph-tooltip trans selected-attr body]
               [:text#graph
                { :x trans
@@ -528,7 +529,7 @@ returns the frequency"
                 :fill "#888888"
                 :key (str "text-" (:name body))} (:name body)]
               [:text
-               {:x trans
+               {:x (- trans 15)
                 :y  170
                 :font-size 20
                 :fill "#fff"}
@@ -549,8 +550,8 @@ returns the frequency"
      [:g {:key "chord"
           :cursor "pointer"
           :on-click #(dispatch [:chord adshr toggled-reduced])}
-      [:rect.system {:x 550 :y 140 :width 100 :height 30}]
-      [:text.system {:x 560 :y 160} "Chord"]])])
+      [:rect.system {:x 550 :y 330 :width 100 :height 30}]
+      [:text.system {:x 563 :y 353} "Chord"]])])
 
 
 (defn attribute-selector []
@@ -589,7 +590,7 @@ returns the frequency"
   )
 
 (defn player []
-  [:svg {:width 1200 :height 350}
+  [:svg {:width 1200 :height 365}
    [:rect.system {:x 100 :y 50 :width 1000 :height 300}]
    [attribute-selector]
    [graph]

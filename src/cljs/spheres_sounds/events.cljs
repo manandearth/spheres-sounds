@@ -1,6 +1,6 @@
 (ns spheres-sounds.events
   (:require
-   [re-frame.core :refer [reg-event-db reg-event-fx subscribe debug]]
+   [re-frame.core :refer [reg-event-db reg-event-fx reg-fx subscribe debug]]
    [spheres-sounds.db :as db]
    [spheres-sounds.audio :as audio]
    
@@ -47,6 +47,16 @@
  (fn [db [_ sphere]]
     (assoc-in db [:spheres sphere :vis] true)))
 
+(reg-fx
+ :play-note!
+ (fn [[adshr freq]]
+   (audio/play-note! adshr freq)))
+
+(reg-fx
+ :play-chord!
+ (fn [[adshr freqs]]
+   (audio/play-chord! adshr freqs)))
+
 (reg-event-db
  :toggle-global
  (fn [db _]
@@ -56,13 +66,13 @@
  :audio
  (fn [cofx [_ adshr freq]]
    ;(map audio/note-p3 v)
-   (audio/play-note! adshr freq)
+   {:play-note! [adshr freq]}
    ))
 
 (reg-event-fx
  :chord
  (fn [cofx [_ adshr freqs]]
-   (audio/play-chord! adshr freqs)))
+   {:play-chord! [adshr freqs]}))
 
 ;;set the synth-envelope
 (reg-event-db
