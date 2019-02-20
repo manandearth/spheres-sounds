@@ -7,54 +7,38 @@
  (fn [db]
    (:name db)))
 
+;;RETURNS THE VALUE OF THE KEY :spheres (SEQ OF MAPS)
 (reg-sub
  ::spheres
  (fn [db]
    (vals (:spheres db))))
 
+;;RETURN NAMES OF ALL PARENTS IN ALL SYSTEMS (VECTOR OF STRINGS)
 (reg-sub
  ::systems
  (fn [db]
    (:systems db)))
 
-
+;;RETURNS NAME OF PARENT OF SELECTED-SYSTEM (STRING)
 (reg-sub
  ::selected-system
  (fn [db]
    (:selected-system db)))
 
+;;THE SPHERES INCLUDED IN HE SELECTED SYSTEM 
 (reg-sub
  ::selected-system-attr
  (fn [db]
    (get-in db [:spheres (:selected-system db)])))
 
-;; (reg-sub
-;;  ::sorted-selected
-;;  :<- [::spheres]
-;;  (fn [spheres _]
-;;    (sort-by :apoapsis
-;;              (concat
-;;               (list (assoc
-;;                      (first
-;;                       (filter
-;;                        #(= (:name %) @(subscribe [::selected-system])) spheres))
-;;                      :periapsis 0 :apoapsis 0 ))
-;;               (filter
-;;                #(contains?
-;;                  (set (:satelites @(subscribe [::selected-system-attr])))
-;;                  (:name %)) spheres))))
-;; )
-
-
+;;THE SPHERES INCLUDED IN THE SELECTED SYSTEM ORDERED BY APOAPSIS
 (reg-sub
  ::sorted-spheres
  :<- [::spheres]
  :<- [::selected-system]
  (fn [[spheres parent] _]
    (sort-by :apoapsis (concat
-
                        (list (assoc (first (filter #(= parent (:name %)) spheres)) :periapsis (:self-bias parent) :apoapsis (:self-bias parent)))
-
                        (filter #(= parent (:parent %))  spheres)))))
 
 
@@ -64,6 +48,8 @@
  (fn [db]
    (:selected-attr db)))
 
+
+;;MAP OF THE VALUES OF THE SELECTED ATTRIBUTE OF SPHERES OF SELECTED SYSTEM
 (reg-sub
  ::toggled-attr
  :<- [::selected-attr]
@@ -71,6 +57,7 @@
  (fn [[attr spheres] _]
    (map attr (filter :vis spheres))))
 
+;;THE SPHERES IN THE SELECTED SYSTEM ORDERED BY THE SELECTED-ATTRIBUTE
 (reg-sub
  ::selected-spheres
  :<- [::spheres]
@@ -83,26 +70,31 @@
                                         (filter #(= parent (:parent %)) spheres))))))
 
 
+;;THE ATTRIBUTES THAT CAN BE REPRESENTED IN THE GRAPH (NUMERIC)
 (def non-numeric-keys [:parent :satelites :form :name :vis])
 
+
+;;JUST A FUNKY WAY OF GETTING THE KEYS OF THE NUMERIC ATTRIBUTES IN ONE SEQUENCE...
 (reg-sub
  ::attributes
  :<- [::spheres]
  (fn [spheres _]
    (remove (set non-numeric-keys) (keys (first spheres)))))
 
+;;RETURNS BOOLEAN
 (reg-sub
  ::global
  (fn [db]
    (:global db)))
 
+;;RETURNS A MAP WITH THE KEYS: {:min <foo> :max <bar>}
 (reg-sub
  ::freq-range
  (fn [db]
    (get db :freq-range)))
 
-
 ;;DONE make this a set-freq-rate! and add a :freq-rate to db
+;;TODO this si not really any valid interpolation, just for visual representation of spheres in graph.
 (reg-sub
  ::calc-freq-rate
  :<- [::spheres]
@@ -124,60 +116,15 @@
    ))
 
 
-
-
-;; (subscribe [::freq-rate])
-
+;;A FLOAT
 (reg-sub
  ::freq-rate
  (fn [db]
    (get db :freq-rate)))
 
-(reg-fx
- :new-freq-rate
- (fn []))
-                                        
-
-;; (subscribe [::freq-rate])
-;; (js/parseFloat (:min @(subscribe [::freq-range])))
-
-;; (subscribe [::sorted-spheres])
-;; (subscribe [::spheres])
-
+;;RETURN A VECTOR OF FIVE INTEGERS.
 (reg-sub
  ::envelope
  (fn [db]
    (get db :envelope)))
 
-
-
-;(subscribe [::freq-rate])
-
-;(apply min (map @(subscribe [::selected-attr]) @(subscribe [::spheres])))
-
-
-
-;@(subscribe [::spheres])
-;(remove (set non-numeric-keys) (keys (first @(subscribe [::spheres]))))
-;(subscribe [::selected-attr])
-
-
-;; (subscribe [::sorted-attempt])
-;; (filter #(= @(subscribe [::selected-system]) (:name %)) @(subscribe [::spheres]))
-;;(map :name @(subscribe [::selected-system-attr]))
-
-;; (reg-sub
-;;  ::selected-spheres
-;;  (fn [db]
-;;    (let
-;;        [satelites (set (:satelites @(subscribe [::selected-system-attr])))
-;;         spheres @(subscribe [::spheres])
-;;         parent @(subscribe [::selected-system])]
-;;       (sort-by :apoapsis
-;;                (concat
-;;                 (list  (assoc (first (filter #(= (:name %) parent) spheres)) :periapsis 0 :apoapsis 0)) 
-;;                 (filter #(contains? satelites (:name %)) spheres))) 
-;;      )))
-
-
-;; (map :name @(subscribe [::selected-spheres]))

@@ -179,6 +179,17 @@ text.tooltip {
   padding: 20px;
   position: relative;
   margin-left: 150px;
+  cursor: pointer;
+}
+
+.range-slider {
+  opacity: 0.5;
+  margin: 0;
+  width: 300px;
+}
+
+.range-slider:hover {
+  opacity: 1;
 }
 
 p {
@@ -198,4 +209,5 @@ p {
   background-color: none;
   padding-bottom: 100%;
   margin-bottom: -100%;
+  padding-left: -200px;
 }

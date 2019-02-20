@@ -384,18 +384,16 @@
        ]
     [:div.container 
      {:style {:display "inline-block"}}
-     [:div.column  {:style {:transform "translate(25px, -60px)"}}
-      [:input {:style {:margin 0}
-               :type "range" :id "min" :name "low-bar"
+     [:div.column  {:style {:transform "translate(-50px, -60px)"}}
+      [:input.range-slider { :type "range" :id "min" :name "low-bar"
                :min "30" :max (:max @freq-range)  :step "1" :value (:min @freq-range)
                :on-change #(dispatch [:update-freq-range! :min (js/parseFloat (.-target.value %))])
                }]
       [:h3  {:style {:margin 0}} (str "min : " (:min @freq-range))]
       ]
      
-     [:div.column {:style {:transform "translate(25px, -60px)"}}
-      [:input {:style {:margin 0}
-               :type "range" :id "max" :name "high-bar"
+     [:div.column {:style {:transform "translate(-20px, -60px)"}}
+      [:input.range-slider {:type "range" :id "max" :name "high-bar"
                :min (:min @freq-range) :max "12000"  :step "1"
                :value (:max @freq-range)
                :on-change #(dispatch [:update-freq-range! :max (js/parseFloat (.-target.value %))])
@@ -460,10 +458,8 @@ returns the frequency"
              :opacity 0.4
              :rx 5
              :fill "#ccc"
-             }
-      ]
+             }]
      [:text.tooltip {:x 700
-                                        ;(+ 20 trans)
                      :y 15}
       (selected-attr body)
       (case selected-attr
@@ -482,8 +478,7 @@ returns the frequency"
              :opacity 0.4
              :rx 5
              :fill "#ccc"
-             }
-      ]
+             }]
      [:text.tooltip {:x 700
                      :y 35}
       (str (interpolate (selected-attr body)) " Hz")]])
@@ -534,8 +529,7 @@ returns the frequency"
                 :font-size 20
                 :fill "#fff"}
                (str "<" (nth home-keys (.indexOf selected-spheres body)) ">")
-               ]
-              ]))])])
+               ]]))])])
 
 (defn chord
   []

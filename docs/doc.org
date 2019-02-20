@@ -193,7 +193,7 @@ In systems with large object such as Jupiters
 .. the moons on their own in some attributes are
 very similar - not very useful as instrument.
 
-*** TODO improve the ranges of frequency (min/max)
+*** DONE improve the ranges of frequency (min/max)
 it is too fiddly at the moment
 
 *** TODO add envelope [3/6]
@@ -326,6 +326,14 @@ this way it could be accessed from the app by subscriptions.
 numbers are higher tones.. is that right?
 a bigger planet is a higher note?
 
+** TESTS
+
+*** DONE create test.cljs
+
+*** TODO what can be tested? -> create the tests [1/3]
+- [X] interpolate
+- [ ] more...
+- [ ] ?
 
 ** ISSUES
 

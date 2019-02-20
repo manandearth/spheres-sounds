@@ -2,9 +2,7 @@
   (:require
    [re-frame.core :refer [reg-event-db reg-event-fx reg-fx subscribe debug]]
    [spheres-sounds.db :as db]
-   [spheres-sounds.audio :as audio]
-   
-   ))
+   [spheres-sounds.audio :as audio]))
 
 (reg-event-db
  ::initialize-db
@@ -16,23 +14,12 @@
  (fn [db [_ sys]]
    (assoc db :selected-system sys)))
 
+
+;;TOGGLE VISIBILITY OF SPHERE BY NEGATING LOGIC: 'not'
 (reg-event-db
  :visible
  (fn [db [_ sphere]]
    (update-in db [:spheres sphere :vis] not)))
-
-;; (reg-event-db
-;;  :invisible
-;;  (fn [db [_ sphere]]
-;;    (update-in db [:spheres sphere :vis] not)))
-
-
-
-
-;; (reg-event-db
-;;  :select-attribute
-;;  (fn [db [_ attr]]
-;;    (assoc db :selected-attr attr)))
 
 (reg-event-fx
  :select-attribute
@@ -42,11 +29,12 @@
 
 
 ;;TODO Need to have this toggling (assoc a sphere to vis or dissoc)
-(reg-event-db
- :toggle-sphere
- (fn [db [_ sphere]]
-    (assoc-in db [:spheres sphere :vis] true)))
+;; (reg-event-db
+;;  :toggle-sphere
+;;  (fn [db [_ sphere]]
+;;     (assoc-in db [:spheres sphere :vis] true)))
 
+;;EFFECTS FOR AUDIO, USED DOWN IN the even-fx :audio and :chord
 (reg-fx
  :play-note!
  (fn [[adshr freq]]
@@ -57,15 +45,19 @@
  (fn [[adshr freqs]]
    (audio/play-chord! adshr freqs)))
 
+
+;;TOGGLE GLOBAL/LOCAL -> SWITCH IN DB NEGATING LOGIC: 'not' 
 (reg-event-db
  :toggle-global
  (fn [db _]
    (update db :global not))) ;toggles true/false hypothetically
 
+
+;;FOLLOWING TWO EFFECTS USE :playnote! and :play-chord! REGISTERED ABOVE.
 (reg-event-fx
  :audio
  (fn [cofx [_ adshr freq]]
-   ;(map audio/note-p3 v)
+                                        ;(map audio/note-p3 v)
    {:play-note! [adshr freq]}
    ))
 
@@ -74,7 +66,7 @@
  (fn [cofx [_ adshr freqs]]
    {:play-chord! [adshr freqs]}))
 
-;;set the synth-envelope
+;;SET THE SYNTH ENVELOPE THAT REQUIRES A 5 INT VECTOR
 (reg-event-db
  :set-envelope!
  (fn [db [_ v]]

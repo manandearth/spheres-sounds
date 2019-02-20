@@ -1,4 +1,4 @@
-⇧(ns spheres-sounds.css
+(ns spheres-sounds.css
   (:require [garden.def :refer [defstylesheet]]
             [garden.selectors :as s]))
 
@@ -63,12 +63,12 @@
    ]
 
   [:text.selected {:font-family "Share Tech Mono, monospace"
-                 :font-size "1.5rem"
-                 :fill "#f2f"
-                 :text-shadow "0.1px 0.1px #999"}]
+                   :font-size "1.5rem"
+                   :fill "#f2f"
+                   :text-shadow "0.1px 0.1px #999"}]
 
   [:text.spheres {:font-family "Share Tech Mono, monospace"
-                 :font-size "1rem"
+                  :font-size "1rem"
                   :fill "#44a"
                   :text-shadow "0.1px 0.1px #bbb"
                   :cursor "pointer"}
@@ -77,27 +77,25 @@
   ;[(s/+ :text.spheres:hover :circle.earth) {:fill "#fff"}]
 
   [:text.spheres.visible {:font-family "Share Tech Mono, monospace"
-                 :font-size "1rem"
-                  :fill "#f2f"
-                  :text-shadow "0.1px 0.1px #bbb"
-                  :cursor "pointer"}
+                          :font-size "1rem"
+                          :fill "#f2f"
+                          :text-shadow "0.1px 0.1px #bbb"
+                          :cursor "pointer"}
    ]
 
-  [:text#graph
-   {:font-family "Share Tech Mono, monospace"
-    :font-size "1rem"
-    :fill "#44a"
-    :text-shadow "0.1px 0.1px #bbb"
-    :cursor "pointer"}]
-
+  [:text#graph   {:font-family "Share Tech Mono, monospace"
+                  :font-size "1rem"
+                  :fill "#44a"
+                  :text-shadow "0.1px 0.1px #bbb"
+                  :cursor "pointer"}]
+  
 
   
-  [:circle#graph
-   {:fill "#bbb"
-    :opacity 0.5
-    :cursor "pointer"}
+  [:circle#graph {:fill "#bbb"
+                  :opacity 0.5
+                  :cursor "pointer"}
    [:&:hover {:fill "#a8a"}]]
-
+  
   [(s/+ :circle#graph:hover :.tooltip) {
                                            ;;:opacity 1
                                            :display "inline"}]
@@ -107,45 +105,51 @@
                                            ;;:opacity 1
                                            :display "inline"}]
 
-  [:g.tooltip
-   {:cursor "pointer"
-    :display "none"}
+  [:g.tooltip {:cursor "pointer"
+               :display "none"}
    ]
 
 
-  [:text.tooltip
-   {:font-family "Share Tech Mono, monospace"
-   :font-size "1rem"
-   :fill "#111"
-   :text-shadow "0.1px 0.1px #bbb"
-    :cursor "pointer"
-    }
+  [:text.tooltip {:font-family "Share Tech Mono, monospace"
+                  :font-size "1rem"
+                  :fill "#111"
+                  :text-shadow "0.1px 0.1px #bbb"
+                  :cursor "pointer"
+                  }
    ]
 
-  [:.slider {
-             :display "inline-block"
+  [:.slider {:display "inline-block"
              :width "500px"
              :height "20px"
              :padding "20px"
              :position "relative"
              :margin-left "150px"
-             }]
+             :cursor "pointer"
+             }
+   ]
+
+  [:.range-slider {:opacity 0.5
+                   :margin 0
+                   :width "300px"
+                   }
+   [:&:hover {:opacity 1}]
+   ]
   
   [:p {:font-family "Share Tech Mono, monospace"
-                 :font-size "1.3rem"
-                  :color "#a2a"
-                  :text-shadow "0.1px 0.1px #bbb"
-                  }]
+       :font-size "1.3rem"
+       :color "#a2a"
+       :text-shadow "0.1px 0.1px #bbb"
+       }]
 
 
   [:.container {:overflow "hidden"}]
-
+  
   [:.column {:float "left"
              :margin "60px"
              :background-color "none"
              :padding-bottom "100%"
              :margin-bottom "-100%"
              }
-]
+   ]
 )
 
