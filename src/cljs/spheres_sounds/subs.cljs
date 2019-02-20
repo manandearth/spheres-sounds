@@ -128,3 +128,10 @@
  (fn [db]
    (get db :envelope)))
 
+;;RETURNS THE PRESSED KEY
+(reg-sub
+ ::pressed
+ (fn [db]
+   (get db :pressed)))
+
+(subscribe [::envelope])

@@ -37,13 +37,13 @@
 ;;EFFECTS FOR AUDIO, USED DOWN IN the even-fx :audio and :chord
 (reg-fx
  :play-note!
- (fn [[adshr freq]]
-   (audio/play-note! adshr freq)))
+ (fn [[adsr freq]]
+   (audio/play-note! adsr freq)))
 
 (reg-fx
  :play-chord!
- (fn [[adshr freqs]]
-   (audio/play-chord! adshr freqs)))
+ (fn [[adsr freqs]]
+   (audio/play-chord! adsr freqs)))
 
 
 ;;TOGGLE GLOBAL/LOCAL -> SWITCH IN DB NEGATING LOGIC: 'not' 
@@ -56,15 +56,16 @@
 ;;FOLLOWING TWO EFFECTS USE :playnote! and :play-chord! REGISTERED ABOVE.
 (reg-event-fx
  :audio
- (fn [cofx [_ adshr freq]]
+ (fn [cofx [_ adsr freq body]]
                                         ;(map audio/note-p3 v)
-   {:play-note! [adshr freq]}
+   {:play-note! [adsr freq]
+    :dispatch [:press! body]}
    ))
 
 (reg-event-fx
  :chord
- (fn [cofx [_ adshr freqs]]
-   {:play-chord! [adshr freqs]}))
+ (fn [cofx [_ adsr freqs]]
+   {:play-chord! [adsr freqs]}))
 
 ;;SET THE SYNTH ENVELOPE THAT REQUIRES A 5 INT VECTOR
 (reg-event-db
@@ -81,6 +82,13 @@
  :update-freq-rate! [debug]
  (fn [db [_ rate]] 
    (assoc db :freq-rate rate)))
+
+
+(reg-event-db
+ :press!
+ (fn [db [_ pressed]]
+   (assoc db :pressed pressed)))
+
 
 ;;TODO update-freq-rate! takes the rate from the subscription:
 ;;calc-freq-rate -- this needs to be updated with the interpolate function. Also in the view 'sliders' the two rate subscriptions seem redundant. --> the idea is to have a correct interpolation and perhaps not use a fixed rate as this is what's confusing. -->>> actually a fixed number rate is not possible so correct it...!!!!!!

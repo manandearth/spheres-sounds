@@ -34,30 +34,30 @@
 
 ;;the following is a new synth-handler for envelope..:
 (defn play-note-handler
-  ([[a d s h r]]
-   (play-note-handler [a d s h r] 0))
-  ([[a d s h r] freq]
+  ([[a d s r]]
+   (play-note-handler [a d s r] 0))
+  ([[a d s r] freq]
    (connect->
     (sine freq)
     (gain 0.1)
-    (adshr a d s h r))))
+    (adsr a d s r))))
 
 (defn play-note! [env freq]
-  (let [[a d s h r] env]
-    (-> (play-note-handler [a d s h r] freq)
+  (let [[a d s r] env]
+    (-> (play-note-handler [a d s r] freq)
         (connect-> destination)
-        (run-with context (current-time context) (+ a d s h r)))))
+        (run-with context (current-time context) (+ a d s r)))))
 
 (defn play-chord! [env freqs]
-  (let [[a d s h r] env]
+  (let [[a d s r] env]
     (doseq [freq freqs]
-      (-> (play-note-handler [a d s h r] freq)
+      (-> (play-note-handler [a d s r] freq)
           (connect-> destination)
-          (run-with context (current-time context) (+ a d s h r)))))  )
+          (run-with context (current-time context) (+ a d s r))))))
 
 
 
 ;; (tester2 [0 0 2 0 1] 300.32452)
 ;; (tester2 [1 5 1 1 1] 440)
 
-(play-chord! [0 1 0 1 0] [440 400 500 1200])
+(play-chord! [0 1 0 1] [440 400 500 1200])

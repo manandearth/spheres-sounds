@@ -486,50 +486,50 @@ returns the frequency"
 
 (defn graph []
   [:svg {:width 1800 :x -200 :y 150}
-   (let [spheres @(subscribe [::subs/sorted-spheres])
-         selected-attr @(subscribe [::subs/selected-attr])
-         sys-selected @(subscribe [::subs/selected-system])
-         adshr @(subscribe [::subs/envelope])
-         selected-spheres @(subscribe [::subs/selected-spheres])
+   (let [spheres (subscribe [::subs/sorted-spheres])
+         selected-attr (subscribe [::subs/selected-attr])
+         ;; sys-selected (subscribe [::subs/selected-system])
+         adsr (subscribe [::subs/envelope])
+         selected-spheres (subscribe [::subs/selected-spheres])
          ;;visual:
-         min-val (apply min (map selected-attr (filter #(= true (:vis %)) spheres)))
-         max-val (apply max (map selected-attr (filter #(= true (:vis %)) spheres)))
+         min-val (apply min (map @selected-attr (filter #(= true (:vis %)) @spheres)))
+         max-val (apply max (map @selected-attr (filter #(= true (:vis %)) @spheres)))
          fit  (/ max-val 900)
          home-keys [\a \s \d \f \g \h \j \k \l \; \' \# ]
-         ]
+         pressed @(subscribe [::subs/pressed])]
      [:g
-      (for [body spheres
+      (for [body @spheres
                :when (:vis body) ;toggle visability
                ]
-           (let [trans (+ 350 (/ (selected-attr body) fit)) ;visual
+
+        (let [trans (+ 350 (/ (@selected-attr body) fit)) ;visual
                  size (.log js/Math (:volume body)) ;visual
                  freq-rate (subscribe [::subs/calc-freq-rate])
                  freq-range @(subscribe [::subs/freq-range])
                  adjustment  (:min freq-range)
-                 global @(subscribe [::subs/global])]
+                 ;; global (subscribe [::subs/global])
+              ]
+
+          (if (= pressed (:name body))
              [:g {:key (str "g-" (:name body))}
-              [:circle#graph
-               {:r size
-                :cx trans 
-                :cy 100
-                ;; :fill "#6666"
-                :key (str "circle-" (:name body))
-                :on-mouse-over #(dispatch [:audio adshr (interpolate (selected-attr body))])
-                }]
-              [graph-tooltip trans selected-attr body]
-              [:text#graph
-               { :x trans
-                :y 100
-                :font-size 10
-                :fill "#888888"
-                :key (str "text-" (:name body))} (:name body)]
-              [:text
-               {:x (- trans 15)
-                :y  170
-                :font-size 20
-                :fill "#fff"}
-               (str "<" (nth home-keys (.indexOf selected-spheres body)) ">")
-               ]]))])])
+                  [:circle {:r size :cx trans :cy 100 :fill "#f99"
+                            :key (str "circle-" (:name body))
+                            :on-mouse-over #(dispatch [:audio @adsr (interpolate (@selected-attr body))])}]
+                  [graph-tooltip trans @selected-attr body]
+                  [:text#graph {:x trans :y 100 :font-size 10 :fill "#888888"
+                                :key (str "text-" (:name body))} (:name body)]
+                  [:text {:x (- trans 15) :y 170 :font-size 20 :fill "#fff"}
+                   (str "<" (nth home-keys (.indexOf @selected-spheres body)) ">")]]
+                 
+             [:g {:key (str "g-" (:name body))}
+              [:circle#graph {:r size :cx trans :cy 100 :key (str "circle-" (:name body))
+                              :on-mouse-over #(dispatch [:audio @adsr (interpolate (@selected-attr body))])}]
+              [graph-tooltip trans @selected-attr body]
+              [:text#graph {:x trans :y 100 :font-size 10 :fill "#888888"
+                            :key (str "text-" (:name body))} (:name body)]
+              [:text {:x (- trans 15) :y 170 :font-size 20 :fill "#fff"}
+               (str "<" (nth home-keys (.indexOf @selected-spheres body)) ">")]]
+             )))])])
 
 (defn chord
   []
@@ -538,12 +538,12 @@ returns the frequency"
          freq-rate (subscribe [::subs/freq-rate])
          adjustment (:min @(subscribe [::subs/freq-range])) ;30hz is the lowest audiable so the range is increased by that much for 0 to be audiable.
          toggled-reduced  (vec (map #(interpolate %) @toggled-on))
-         adshr @(subscribe [::subs/envelope])
+         adsr @(subscribe [::subs/envelope])
          global (subscribe [::subs/global])]
      
      [:g {:key "chord"
           :cursor "pointer"
-          :on-click #(dispatch [:chord adshr toggled-reduced])}
+          :on-click #(dispatch [:chord adsr toggled-reduced])}
       [:rect.system {:x 550 :y 330 :width 100 :height 30}]
       [:text.system {:x 563 :y 353} "Chord"]])])
 
@@ -607,22 +607,22 @@ returns the frequency"
    [:svg {:width 1200 :height :150}
     [:g
      [:rect.system {:x 100 :y 50 :width 1000 :height 40}]
-     [:text.system {:y 80 :x 520} "-A-D-S-H-R-"]]
+     [:text.system {:y 80 :x 520} "-A-D-S-R-"]]
     ]
    [:div
-    [:h3.guide "envelope (temporarily specless) enter 5 integers (i.e. 01010)"]]
+    [:h3.guide "envelope (temporarily specless) enter 4 integers (i.e. 0101)"]]
    ;[volume-slider]
    ])
 
 
 (defn envelope-input []
-  (let [envelope (r/atom "01010")
+  (let [envelope (r/atom "0101")
         env @(subscribe [::subs/envelope])]
     (fn []
       [:input {:type "text"
                :value @envelope
                :auto-focus true
-               :placeholder "a s d h r"
+               :placeholder "a s d r"
                :on-change #(reset! envelope (-> % .-target .-value))
                :on-key-press (fn [e] (when (= (.-which e) 13)
                                        (dispatch [:set-envelope!
@@ -632,7 +632,7 @@ returns the frequency"
 (defn keydown-rules []
   (let [selected-attr @(subscribe [::subs/selected-attr])
         spheres @(subscribe [::subs/sorted-spheres])
-        adshr @(subscribe [::subs/envelope])
+        adsr @(subscribe [::subs/envelope])
         homerow-vec (:home-vec key-map)
         ordered-spheres (sort-by selected-attr (filter #(= (:vis %) true) spheres))
         systems @(subscribe [::subs/systems])
@@ -650,7 +650,7 @@ returns the frequency"
         (conj
          (into []
                (for [body ordered-spheres]
-                 [[:audio adshr (interpolate (selected-attr body))]
+                 [[:audio adsr (interpolate (selected-attr body)) (:name body)]
                   [{:keyCode (nth homerow-vec (.indexOf ordered-spheres body))}]]))
          
          [[:toggle-global]
@@ -675,6 +675,7 @@ returns the frequency"
      }))
 
 ;;TODO make the key visible when pressed.
+@(subscribe [::subs/pressed])
 
 (defn keyboard []
   (dispatch
@@ -682,8 +683,6 @@ returns the frequency"
      (keydown-rules)
     
       ]))
-
-
 
 
 ;; (defn key-map []
