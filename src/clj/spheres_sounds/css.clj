@@ -89,7 +89,10 @@
                   :text-shadow "0.1px 0.1px #bbb"
                   :cursor "pointer"}]
   
-
+  [:text#graph.not-pressed {:fill "#aaa"}]
+  [:text#graph.pressed {:fill "#ccc"
+                        :font-size "1.1rem"}]
+  
   
   [:circle#graph {:fill "#bbb"
                   :opacity 0.5

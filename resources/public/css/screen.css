@@ -141,6 +141,15 @@ text#graph {
   cursor: pointer;
 }
 
+text#graph.not-pressed {
+  fill: #aaa;
+}
+
+text#graph.pressed {
+  fill: #ccc;
+  font-size: 1.1rem;
+}
+
 circle#graph {
   fill: #bbb;
   opacity: 0.5;
@@ -209,5 +218,4 @@ p {
   background-color: none;
   padding-bottom: 100%;
   margin-bottom: -100%;
-  padding-left: -200px;
 }

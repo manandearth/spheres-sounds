@@ -37,13 +37,13 @@
 ;;EFFECTS FOR AUDIO, USED DOWN IN the even-fx :audio and :chord
 (reg-fx
  :play-note!
- (fn [[adsr freq]]
-   (audio/play-note! adsr freq)))
+ (fn [[adshr freq]]
+   (audio/play-note! adshr freq)))
 
 (reg-fx
  :play-chord!
- (fn [[adsr freqs]]
-   (audio/play-chord! adsr freqs)))
+ (fn [[adshr freqs]]
+   (audio/play-chord! adshr freqs)))
 
 
 ;;TOGGLE GLOBAL/LOCAL -> SWITCH IN DB NEGATING LOGIC: 'not' 
@@ -56,16 +56,16 @@
 ;;FOLLOWING TWO EFFECTS USE :playnote! and :play-chord! REGISTERED ABOVE.
 (reg-event-fx
  :audio
- (fn [cofx [_ adsr freq body]]
+ (fn [cofx [_ adshr freq body]]
                                         ;(map audio/note-p3 v)
-   {:play-note! [adsr freq]
+   {:play-note! [adshr freq]
     :dispatch [:press! body]}
    ))
 
 (reg-event-fx
  :chord
- (fn [cofx [_ adsr freqs]]
-   {:play-chord! [adsr freqs]}))
+ (fn [cofx [_ adshr freqs]]
+   {:play-chord! [adshr freqs]}))
 
 ;;SET THE SYNTH ENVELOPE THAT REQUIRES A 5 INT VECTOR
 (reg-event-db

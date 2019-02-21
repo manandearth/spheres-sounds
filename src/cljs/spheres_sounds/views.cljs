@@ -489,7 +489,7 @@ returns the frequency"
    (let [spheres (subscribe [::subs/sorted-spheres])
          selected-attr (subscribe [::subs/selected-attr])
          ;; sys-selected (subscribe [::subs/selected-system])
-         adsr (subscribe [::subs/envelope])
+         adshr (subscribe [::subs/envelope])
          selected-spheres (subscribe [::subs/selected-spheres])
          ;;visual:
          min-val (apply min (map @selected-attr (filter #(= true (:vis %)) @spheres)))
@@ -514,20 +514,20 @@ returns the frequency"
              [:g {:key (str "g-" (:name body))}
                   [:circle {:r size :cx trans :cy 100 :fill "#f99"
                             :key (str "circle-" (:name body))
-                            :on-mouse-over #(dispatch [:audio @adsr (interpolate (@selected-attr body))])}]
+                            :on-mouse-over #(dispatch [:audio @adshr (interpolate (@selected-attr body))])}]
                   [graph-tooltip trans @selected-attr body]
                   [:text#graph {:x trans :y 100 :font-size 10 :fill "#888888"
                                 :key (str "text-" (:name body))} (:name body)]
-                  [:text {:x (- trans 15) :y 170 :font-size 20 :fill "#fff"}
+                  [:text#graph.pressed {:x (- trans 15) :y (* 15 (inc (.indexOf @selected-spheres body)))  :font-size 20 :fill "#fff"}
                    (str "<" (nth home-keys (.indexOf @selected-spheres body)) ">")]]
                  
              [:g {:key (str "g-" (:name body))}
               [:circle#graph {:r size :cx trans :cy 100 :key (str "circle-" (:name body))
-                              :on-mouse-over #(dispatch [:audio @adsr (interpolate (@selected-attr body))])}]
+                              :on-mouse-over #(dispatch [:audio @adshr (interpolate (@selected-attr body))])}]
               [graph-tooltip trans @selected-attr body]
               [:text#graph {:x trans :y 100 :font-size 10 :fill "#888888"
                             :key (str "text-" (:name body))} (:name body)]
-              [:text {:x (- trans 15) :y 170 :font-size 20 :fill "#fff"}
+              [:text#graph.not-pressed {:x (- trans 15) :y (* 15 (inc (.indexOf @selected-spheres body)))  :font-size 20 :fill "#fff"}
                (str "<" (nth home-keys (.indexOf @selected-spheres body)) ">")]]
              )))])])
 
@@ -538,12 +538,12 @@ returns the frequency"
          freq-rate (subscribe [::subs/freq-rate])
          adjustment (:min @(subscribe [::subs/freq-range])) ;30hz is the lowest audiable so the range is increased by that much for 0 to be audiable.
          toggled-reduced  (vec (map #(interpolate %) @toggled-on))
-         adsr @(subscribe [::subs/envelope])
+         adshr @(subscribe [::subs/envelope])
          global (subscribe [::subs/global])]
      
      [:g {:key "chord"
           :cursor "pointer"
-          :on-click #(dispatch [:chord adsr toggled-reduced])}
+          :on-click #(dispatch [:chord adshr toggled-reduced])}
       [:rect.system {:x 550 :y 330 :width 100 :height 30}]
       [:text.system {:x 563 :y 353} "Chord"]])])
 
@@ -607,22 +607,22 @@ returns the frequency"
    [:svg {:width 1200 :height :150}
     [:g
      [:rect.system {:x 100 :y 50 :width 1000 :height 40}]
-     [:text.system {:y 80 :x 520} "-A-D-S-R-"]]
+     [:text.system {:y 80 :x 520} "-A-D-S-H-R-"]]
     ]
    [:div
-    [:h3.guide "envelope (temporarily specless) enter 4 integers (i.e. 0101)"]]
+    [:h3.guide "envelope (temporarily specless) enter 5 numbers to the following 5 fields (i.e. 0.1 0.1 0 0.5 0 )"]]
    ;[volume-slider]
    ])
 
 
 (defn envelope-input []
-  (let [envelope (r/atom "0101")
+  (let [envelope (r/atom "01010")
         env @(subscribe [::subs/envelope])]
     (fn []
       [:input {:type "text"
                :value @envelope
                :auto-focus true
-               :placeholder "a s d r"
+               :placeholder "a s d h r"
                :on-change #(reset! envelope (-> % .-target .-value))
                :on-key-press (fn [e] (when (= (.-which e) 13)
                                        (dispatch [:set-envelope!
@@ -632,7 +632,7 @@ returns the frequency"
 (defn keydown-rules []
   (let [selected-attr @(subscribe [::subs/selected-attr])
         spheres @(subscribe [::subs/sorted-spheres])
-        adsr @(subscribe [::subs/envelope])
+        adshr @(subscribe [::subs/envelope])
         homerow-vec (:home-vec key-map)
         ordered-spheres (sort-by selected-attr (filter #(= (:vis %) true) spheres))
         systems @(subscribe [::subs/systems])
@@ -650,7 +650,7 @@ returns the frequency"
         (conj
          (into []
                (for [body ordered-spheres]
-                 [[:audio adsr (interpolate (selected-attr body)) (:name body)]
+                 [[:audio adshr (interpolate (selected-attr body)) (:name body)]
                   [{:keyCode (nth homerow-vec (.indexOf ordered-spheres body))}]]))
          
          [[:toggle-global]
@@ -675,64 +675,79 @@ returns the frequency"
      }))
 
 ;;TODO make the key visible when pressed.
-@(subscribe [::subs/pressed])
+;;@(subscribe [::subs/pressed])
 
 (defn keyboard []
   (dispatch
    [::rp/set-keydown-rules
      (keydown-rules)
-    
       ]))
 
+(defn static-envelope []
+  (let [[a d s h r] @(subscribe [::subs/envelope])
+        total-time (+ a d h r)
+        int-time (Math/floor total-time)
+        a-relative (+ 350 (* (/ a total-time) 500))
+        d-relative (* (/ d total-time) 500)
+        h-relative (* (/ h total-time) 500)
+        r-relative (* (/ r total-time) 500)
+        ]
+    [:div
+     [:input {:type "text"
+              ;:value a 
+              :auto-focus true
+              :placeholder "a"
+              :on-key-up #(dispatch [:set-envelope! [(js/parseFloat (-> % .-target .-value)) d s h r]])
+              }]
+     [:input {:type "text"
+              ;:value a 
+              :auto-focus true
+              :placeholder "d"
+              :on-key-up #(dispatch [:set-envelope! [a (js/parseFloat (-> % .-target .-value)) s h r]])
+              }]
+     [:input {:type "text"
+              ;:value a 
+              :auto-focus true
+              :placeholder "s"
+              :on-key-up #(dispatch [:set-envelope! [a d (js/parseFloat (-> % .-target .-value)) h r]])
+              }]
+     [:input {:type "text"
+              ;:value a 
+              :auto-focus true
+              :placeholder "h"
+              :on-key-up #(dispatch [:set-envelope! [a d s (js/parseFloat (-> % .-target .-value)) r]])
+              }]
+     [:input {:type "text"
+              ;:value a 
+              :auto-focus true
+              :placeholder "r"
+              :on-key-up #(dispatch [:set-envelope! [a d s h (js/parseFloat (-> % .-target .-value))]])
+              }]
+     [:svg {:width 1200 :height 200}
+      [:rect.system {:x 100 :width 1000 :height 200}]
+      [:rect.system {:x 350 :y 25 :width 500 :height 150 :style {:fill "#333"}}]
+      [:line {:key "env-a" :x1 350 :y1 175 :x2 a-relative :y2 25 :style {:stroke-width "5px" :stroke "#aea"}}]
+      [:line {:key "env-d" :x1 a-relative :y1 25 :x2 (+ a-relative d-relative) :y2 75 :style {:stroke-width "5px" :stroke "#ec9"}}]
+      [:line {:key "env-h" :x1 (+ a-relative d-relative) :y1 75 :x2 (+ a-relative d-relative h-relative) :y2 75 :style {:stroke-width "5px" :stroke "#79f"}}]
+      [:line {:key "env-r" :x1 (+ a-relative d-relative h-relative) :y1 75 :x2 (+ a-relative d-relative h-relative r-relative) :y2 175 :style {:stroke-width "5px" :stroke "#a9f"}}]
+      (for [amp (range  (Math/floor s))]
+        [:g
+         [:line {:x1 340 :y1  (- 175  (* 30 amp)) :x2  350 :y2 (- 175 (* 30 amp))  :style {:stroke-width "2px" :stroke "#aaa"}}]
+         [:text#graph {:x 340 :y (- 175 (* 30 amp))} amp]])
+      ;;A MARK FOR EVERY SECOND ON THE X
+      (for [sec (range  int-time)]
+        [:g
+         [:line {:x1 (+ (* (/ 500 total-time) sec) 350) :y1 175 :x2 (+ (* (/ 500 total-time) sec) 350) :y2 185 :style {:stroke-width "2px" :stroke "#aaa"}}]
+         [:text#graph {:x (+ (* (/ 500 total-time) sec) 350) :y 195 } sec ]])
+      ]]))
 
-;; (defn key-map []
-;;   (dispatch
-;;    [::rp/set-keydown-rules
-;;     {;; takes a collection of events followed by key combos that can trigger the event
-;;      :event-keys
-;;      [
-;;       ;; Event & key combos 1
-;;       [;; this event
-;;        [:toggle-global] ; will be triggered if
-;;        [{:keyCode 220}] ; enter
-;;        [{:keyCode 220  ; or delete
-;;          :shiftKey true}]] ; is pressed
-      
-;;       ;; Event & key combos 2
-;;       [; this event will be triggered if
-;;        [:toggle-global]   ;tab is pressed twice in a row
-;;        [{:keyCode 9} {:keyCode 9}]]
-;;       ]
-     
-;;      ;; takes a collection of key combos that, if pressed, will clear
-;;      ;; the recorded keys
-;;      :clear-keys
-;;      ;; will clear the previously recorded keys if
-;;      [;; escape
-;;       [{:keyCode 27}]
-;;       ;; or Ctrl+g
-;;       [{:keyCode   71
-;;         :ctrlKey true}]]
-;;      ;; is pressed
-     
-;;      ;; takes a collection of keys that will always be recorded
-;;      ;; (regardless if the user is typing in an input, select, or textarea)
-;;      :always-listen-keys
-;;      ;; will always record if
-;;      [;; enter
-;;       {:keyCode 13}]
-;;      ;; is pressed
-     
-;;      ;; takes a collection of keys that will prevent the default browser
-;;      ;; action when any of those keys are pressed
-;;      ;; (note: this is only available to keydown)
-;;      :prevent-default-keys
-;;      ;; will prevent the browser default action if
-;;      [;; Ctrl+g
-;;       {:keyCode   71
-;;        :ctrlKey true}]
-;;      ;; is pressed
-;;      }]))
+;; (let [[a d s h r] @(subscribe [::subs/envelope])
+;;       total-time (+ a d s r)
+;;       int-time (Math/floor total-time)]
+;;   (for [sec (repeat int-time int-time)]
+;;     sec))
+
+;; (range 6)
 
 (defn footer []
   [:div.footer
@@ -768,7 +783,8 @@ returns the frequency"
       "Choose the attribute that will be used for frequency:"]
      [player]
      [controls]
-     [envelope-input]
+     [static-envelope]
+;     [envelope-input]
      [footer]
      (keyboard)
 
