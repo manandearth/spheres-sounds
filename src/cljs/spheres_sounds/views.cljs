@@ -610,7 +610,8 @@ returns the frequency"
      [:text.system {:y 80 :x 520} "-A-D-S-H-R-"]]
     ]
    [:div
-    [:h3.guide "envelope (temporarily specless) enter 5 numbers to the following 5 fields (i.e. 0.1 0.1 0 0.5 0 )"]]
+    ;[:h3.guide "envelope (temporarily specless) enter 5 numbers to the following 5 fields (i.e. 0.1 0.1 0 0.5 0 )"]
+    ]
    ;[volume-slider]
    ])
 
@@ -693,36 +694,40 @@ returns the frequency"
         r-relative (* (/ r total-time) 500)
         ]
     [:div
-     [:input {:type "text"
-              ;:value a 
-              :auto-focus true
-              :placeholder "a"
-              :on-key-up #(dispatch [:set-envelope! [(js/parseFloat (-> % .-target .-value)) d s h r]])
-              }]
-     [:input {:type "text"
-              ;:value a 
-              :auto-focus true
-              :placeholder "d"
-              :on-key-up #(dispatch [:set-envelope! [a (js/parseFloat (-> % .-target .-value)) s h r]])
-              }]
-     [:input {:type "text"
-              ;:value a 
-              :auto-focus true
-              :placeholder "s"
-              :on-key-up #(dispatch [:set-envelope! [a d (js/parseFloat (-> % .-target .-value)) h r]])
-              }]
-     [:input {:type "text"
-              ;:value a 
-              :auto-focus true
-              :placeholder "h"
-              :on-key-up #(dispatch [:set-envelope! [a d s (js/parseFloat (-> % .-target .-value)) r]])
-              }]
-     [:input {:type "text"
-              ;:value a 
-              :auto-focus true
-              :placeholder "r"
-              :on-key-up #(dispatch [:set-envelope! [a d s h (js/parseFloat (-> % .-target .-value))]])
-              }]
+     [:div [:p.attack "Attack (seconds): "
+            [:input.envelope {:type "text"
+                     :auto-focus true
+                     :placeholder a
+                     :on-key-up #(dispatch [:set-envelope! [(js/parseFloat (-> % .-target .-value)) d s h r]])
+                     }]]
+
+      [:p.decay {:style {:display "inline"}} "Decay (seconds): "
+       [:input.envelope {:type "text"
+                :auto-focus true
+                :placeholder d
+                :on-key-up #(dispatch [:set-envelope! [a (js/parseFloat (-> % .-target .-value)) s h r]])
+                }]]
+
+      [:p.sustain "sustain (amplitude): "
+       [:input.envelope {:type "text"
+                :auto-focus true
+                :placeholder s
+                :on-key-up #(dispatch [:set-envelope! [a d (js/parseFloat (-> % .-target .-value)) h r]])
+                }]]
+      [:p.hold "Hold (seconds): "
+       [:input.envelope {:type "text"
+                :auto-focus true
+                :placeholder h
+                :on-key-up #(dispatch [:set-envelope! [a d s (js/parseFloat (-> % .-target .-value)) r]])
+                }]]
+
+      [:p.release "Release (seconds): "
+       [:input.envelope {:type "text"
+                :auto-focus true
+                :placeholder r
+                :on-key-up #(dispatch [:set-envelope! [a d s h (js/parseFloat (-> % .-target .-value))]])
+                }]]]
+
      [:svg {:width 1200 :height 200}
       [:rect.system {:x 100 :width 1000 :height 200}]
       [:rect.system {:x 350 :y 25 :width 500 :height 150 :style {:fill "#333"}}]
@@ -764,7 +769,7 @@ returns the frequency"
           spheres (subscribe [::subs/spheres])]
 
     [:div
-     [:div.guide {:style {:width 1000}}
+     [:div.guide {:style {:width 1050}}
       [:h1  @name "/interplanetary instrument"]
       [:h3 "Some of the bodies in our solar system are gigantic and they travel in greater speed than anything on this planet, yet they are silent. The following is an interactive exploration of the relation between some of those bodies through sound."]
       [:h2 {:style {:margin-bottom -5}}
@@ -780,9 +785,11 @@ returns the frequency"
       "Toggle" [:span {:style {:color "sandybrown"}} " <Global/Local>"] " and set the range -> 30Hz the lowest and 12KHz the highest"]
      [ranges]
 [:h2.guide {:style {:margin-top -40 :margin-bottom -25}}
-      "Choose the attribute that will be used for frequency:"]
+ "Choose the attribute that will be used for frequency:"]
+[:h3.guide {:style {:margin-bottom -25}} "Use the homerow keys or hover the cursor over the graph to play."]
      [player]
-     [controls]
+    ; [controls]
+     [:h3.guide "Shape the envelope with floating numbers for the following five values:"]
      [static-envelope]
 ;     [envelope-input]
      [footer]

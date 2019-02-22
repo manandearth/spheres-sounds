@@ -144,7 +144,12 @@
        :text-shadow "0.1px 0.1px #bbb"
        }]
 
-
+  [:.attack {:color "#aea" :display "inline"}]
+  [:.decay {:color "#ec9" :display "inline"}]
+  [:.sustain {:color "#79f" :display "inline"}]
+  [:.hold {:color "79f" :display "inline"}]
+  [:.release {:color "#a9f" :display "inline"}]
+ 
   [:.container {:overflow "hidden"}]
   
   [:.column {:float "left"
@@ -154,5 +159,20 @@
              :margin-bottom "-100%"
              }
    ]
-)
+
+;; [:.envelope {:font-family "Share Tech Mono, monospace"
+;;                    :font-size "1.5rem"
+;;                    :fill "#fff"
+;;                  :text-shadow "0.1px 0.1px #999"
+;;                  :opacity 1
+;;                  }]
+
+  [:.envelope {:border 0
+               :background "#222"
+               :font-size "20px"
+               :color "#aaa"
+               :width "30px"
+               :display "inline"}]
+  )
+
 
