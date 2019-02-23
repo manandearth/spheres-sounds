@@ -687,7 +687,7 @@ returns the frequency"
 (defn static-envelope []
   (let [[a d s h r] @(subscribe [::subs/envelope])
         total-time (+ a d h r)
-        int-time (Math/floor total-time)
+        int-time (inc (Math/floor total-time))
         a-relative (+ 350 (* (/ a total-time) 500))
         d-relative (* (/ d total-time) 500)
         h-relative (* (/ h total-time) 500)

@@ -196,11 +196,11 @@ very similar - not very useful as instrument.
 *** DONE improve the ranges of frequency (min/max)
 it is too fiddly at the moment
 
-*** TODO add envelope [3/6]
+*** TODO add envelope [4/6]
 - [X] add a note function that takes [adshr]
 - [X] add a chord function that does the same.
 - [X] update the events and views
-- [ ] a graphic representation
+- [X] a graphic representation
 - [ ] a spec
 - [ ] how to manipulate the graph?
 
@@ -301,7 +301,7 @@ some design of a visual instrument
 
 less padding on the instruction (:.guide)
 
-*** TODO improve satelites representation inthe selected-spheres-box
+*** TODO improve satelites representation in the selected-spheres-box
 
 now that the selected system parent looks better I
 better improve the satelites that are only little white
