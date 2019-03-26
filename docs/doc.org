@@ -186,6 +186,15 @@ of calling the event will work.
 
 ***** DONE add mapping to the rest of the clicky buttons...
 
+*** TODO add secretary
+perhaps a link to the github code page, to the
+spheres-rh app. To an instruction page.  look at
+Arne's re-frame (I think events video, It is in
+the beginning, when he shows that there's only one
+thing that functions in the todo app, a filtering
+of some sort and he suggests to look at the
+secratary code.
+
 *** TODO make the gain slider do something...
 
 *** TODO make the toggle local/global have a third state -> *local/global/visible/*

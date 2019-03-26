@@ -6,8 +6,10 @@
                  [garden "1.3.5"]
                  [ns-tracker "0.3.1"]
                  [cljs-bach "0.3.0"]
-                 [com.cognitect/transit-cljs "0.8.239"]
-                 [re-pressed "0.3.0"]]
+                 #_[com.cognitect/transit-cljs "0.8.239"]
+                 [re-pressed "0.3.0"]
+                 [cider/piggieback "0.4.0"]
+]
 
   :plugins [[lein-cljsbuild "1.1.7"]
             [lein-garden "0.2.8"]]
@@ -28,16 +30,18 @@
                      :compiler     {:output-to     "resources/public/css/screen.css"
                                     :pretty-print? true}}]}
 
-  :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
-
   :profiles
   {:dev
    {:dependencies [[binaryage/devtools "0.9.10"]
-                   [figwheel-sidecar "0.5.16"]
-                   [cider/piggieback "0.3.5"]
+                   [figwheel-sidecar "0.5.18"]
+                   [cider/piggieback "0.4.0"]
                    [re-frisk "0.5.3"]]
 
-    :plugins      [[lein-figwheel "0.5.16"]]}
+    :plugins      [[com.bhauman/figwheel-main "0.2.0"]]
+    :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
+    
+  }
+   
    :prod { }
    :uberjar {:source-paths ["env/prod/clj"]
              :omit-source  true
