@@ -1,0 +1,11 @@
+quit
+(require '[figwheel
+quit
+(require '[figwheel-cidecar/repl-api :as fw])
+(require '[figwheel.cidecar/repl-api :as fw])
+(require '[figwheel-sidecar-repl-api :as fw])
+(require '[figwheel-sidecar.repl-api :as fw])
+(fw/start figwheel!)
+(fw/start-figwheel!)
+(fw/cljs-repl )
+quit
